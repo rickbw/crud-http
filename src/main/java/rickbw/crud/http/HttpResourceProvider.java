@@ -11,29 +11,38 @@ import rickbw.crud.ResourceProvider;
 /**
  * An extension of {@link ResourceProvider} for the HTTP protocol, which
  * understands a few more verbs than the standard Create
- * (PUT/{@link #set(Object, Object, ResourceConsumer)}),
- * Read (GET/{@link #get(Object, ResourceConsumer)}),
- * Update (POST/{@link #update(Object, Object, ResourceConsumer)}), and
- * Delete (DELETE/{@link #delete(Object, ResourceConsumer)}).
+ * (PUT/{@link #set(URL, Object, Class, ResourceConsumer)}),
+ * Read (GET/{@link #get(URL, Class, ResourceConsumer)}),
+ * Update (POST/{@link #update(URL, Object, Class, ResourceConsumer)}), and
+ * Delete (DELETE/{@link #delete(URL, Class, ResourceConsumer)}).
  *
  * This interface does not support the HTTP CONNECT method, which is not used
  * for acting on or describing resources, but rather for changing the behavior
  * of HTTP proxies.
  */
-public interface HttpResourceProvider<V> extends ResourceProvider<URL, V> {
+public interface HttpResourceProvider extends ResourceProvider<URL> {
 
-    public abstract <VR> ListenableFuture<?> head(URL url, ResourceConsumer<? super URL, VR> consumer);
+    public abstract <RESP> ListenableFuture<?> head(
+            URL url,
+            Class<? extends RESP> responseClass,
+            ResourceConsumer<? super URL, RESP> consumer);
 
     /**
      * FIXME: Doesn't OPTIONS have a standard response form? We shouldn't
      *        need the generic parameter.
      */
-    public abstract <VR> ListenableFuture<?> options(URL url, ResourceConsumer<? super URL, VR> consumer);
+    public abstract <RESP> ListenableFuture<?> options(
+            URL url,
+            Class<? extends RESP> responseClass,
+            ResourceConsumer<? super URL, RESP> consumer);
 
     /**
      * FIXME: TRACE requests have headers only, and the response body contains
-     * an echo, so V is the incorrect type.
+     * an echo, so what is the incorrect response type?
      */
-    public abstract ListenableFuture<?> trace(URL url, ResourceConsumer<? super URL, ? super V> consumer);
+    public abstract <RESP> ListenableFuture<?> trace(
+            URL url,
+            Class<? extends RESP> responseClass,
+            ResourceConsumer<? super URL, RESP> consumer);
 
 }
