@@ -2,6 +2,9 @@ package rickbw.crud.http;
 
 import java.net.URL;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,16 +27,32 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
     private final URL baseUrl;
     private final Client restClient;
     private final ListeningExecutorService executor;
+    private final MapResourceConsumer<? super String, ? super Exception> exceptionConsumer;
 
 
     public JerseyMapGetter(final URL baseUrl, final Client restClient) {
-        this(baseUrl, restClient, MoreExecutors.listeningDecorator(restClient.getExecutorService()));
+        this(baseUrl, restClient, MoreExecutors.listeningDecorator(restClient.getExecutorService()), null);
     }
 
-    public JerseyMapGetter(final URL baseUrl, final Client restClient, final ListeningExecutorService executor) {
+    public JerseyMapGetter(
+            final URL baseUrl,
+            final Client restClient,
+            final ListeningExecutorService executor,
+            @Nullable final MapResourceConsumer<? super String, ? super Exception> exceptionConsumer) {
         this.baseUrl = Preconditions.checkNotNull(baseUrl);
         this.restClient = Preconditions.checkNotNull(restClient);
         this.executor = Preconditions.checkNotNull(executor);
+
+        if (null != exceptionConsumer) {
+            this.exceptionConsumer = exceptionConsumer;
+        } else {
+            this.exceptionConsumer = new MapResourceConsumer<String, Exception>() {
+                @Override
+                public void accept(final String key, final Exception value) {
+                    log.error("Error occurred while getting " + getFullUrl(key), value);
+                }
+            };
+        }
     }
 
     @Override
@@ -42,13 +61,7 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
             final MapResourceConsumer<? super String, ? super ClientResponse> consumer) {
         Preconditions.checkNotNull(consumer);
 
-        final String fullUrl;
-        if (null != relativeUrl ) {
-            fullUrl = this.baseUrl.toExternalForm() + relativeUrl;
-        } else {
-            fullUrl = this.baseUrl.toExternalForm();
-        }
-
+        final String fullUrl = getFullUrl(relativeUrl);
         final WebResource webResource = this.restClient.resource(fullUrl);
 
         /* XXX: The Futures returned from AsyncWebResource.get() are not those
@@ -69,11 +82,25 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
                         response.close();
                     }
                 } catch (final RuntimeException rex) {
-                    // TODO: Pass to some other Consumer?
-                    log.error("Error getting " + fullUrl, rex);
+                    try {
+                        exceptionConsumer.accept(relativeUrl, rex);
+                    } catch (final RuntimeException rex2) {
+                        log.error(
+                            "New error while processing earlier error " + rex +
+                                " while getting " + fullUrl,
+                            rex2);
+                    }
                 }
             }
         });
+    }
+
+    private String getFullUrl(final String relativeUrl) {
+        if (!StringUtils.isEmpty(relativeUrl)) {
+            return this.baseUrl.toExternalForm() + relativeUrl;
+        } else {
+            return this.baseUrl.toExternalForm();
+        }
     }
 
 }
