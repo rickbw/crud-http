@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -26,22 +23,19 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
 
     private final URL baseUrl;
     private final Client restClient;
-    private final ListeningExecutorService executor;
     private final MapResourceConsumer<? super String, ? super Exception> exceptionConsumer;
 
 
     public JerseyMapGetter(final URL baseUrl, final Client restClient) {
-        this(baseUrl, restClient, MoreExecutors.listeningDecorator(restClient.getExecutorService()), null);
+        this(baseUrl, restClient, null);
     }
 
     public JerseyMapGetter(
             final URL baseUrl,
             final Client restClient,
-            final ListeningExecutorService executor,
             @Nullable final MapResourceConsumer<? super String, ? super Exception> exceptionConsumer) {
         this.baseUrl = Preconditions.checkNotNull(baseUrl);
         this.restClient = Preconditions.checkNotNull(restClient);
-        this.executor = Preconditions.checkNotNull(executor);
 
         if (null != exceptionConsumer) {
             this.exceptionConsumer = exceptionConsumer;
@@ -56,22 +50,18 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
     }
 
     @Override
-    public ListenableFuture<?> get(
+    public void get(
             final String relativeUrl,
             final MapResourceConsumer<? super String, ? super ClientResponse> consumer) {
         Preconditions.checkNotNull(consumer);
-
         final String fullUrl = getFullUrl(relativeUrl);
-        final WebResource webResource = this.restClient.resource(fullUrl);
 
-        /* XXX: The Futures returned from AsyncWebResource.get() are not those
-         * obtained by calling submit() on its ExecutorService. As a result,
-         * even if we force the ExecutorService to be a
-         * ListeningExecutorService, we can't listen to the futures.
-         * Therefore, we use the synchronous methods, and schedule the tasks
-         * ourselves.
+        /* Since we don't want to block on a Future, we don't use the
+         * AsyncWebResource. However, we do use the client's own
+         * ExecutorService.
          */
-        return this.executor.submit(new Runnable() {
+        final WebResource webResource = this.restClient.resource(fullUrl);
+        this.restClient.getExecutorService().submit(new Runnable() {
             @Override
             public void run() {
                 try {
