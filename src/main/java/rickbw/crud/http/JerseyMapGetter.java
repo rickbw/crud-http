@@ -1,6 +1,8 @@
 package rickbw.crud.http;
 
 import java.net.URL;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import javax.annotation.Nullable;
 
@@ -24,18 +26,36 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
     private final URL baseUrl;
     private final Client restClient;
     private final MapResourceConsumer<? super String, ? super Exception> exceptionConsumer;
+    private final Executor consumerExecutor;
 
 
-    public JerseyMapGetter(final URL baseUrl, final Client restClient) {
-        this(baseUrl, restClient, null);
+    public JerseyMapGetter(final URL baseUrl, final Client restClient, final Executor consumerExecutor) {
+        this(baseUrl, restClient, consumerExecutor, null);
     }
 
+    /**
+     * @param baseUrl           A URL relative to which those paths passed to
+     *        {@link #get(String, MapResourceConsumer)} will be evaluated.
+     * @param restClient        HTTP requests will be dispatched using this
+     *        client and its {@link ExecutorService}.
+     * @param consumerExecutor  {@link MapResourceConsumer}s provided to
+     *        {@link #get(String, MapResourceConsumer)} will be executed on
+     *        this {@link ExecutorService}.
+     * @param exceptionConsumer Exceptions that occur along the way will be
+     *        dispatched to this {@link MapResourceConsumer} using the same
+     *        relative path passed to
+     *        {@link #get(String, MapResourceConsumer)}. Exceptions that occur
+     *        while dispatching to this consumer will be logged; they will not
+     *        be dispatched recursively.
+     */
     public JerseyMapGetter(
             final URL baseUrl,
             final Client restClient,
+            final Executor consumerExecutor,
             @Nullable final MapResourceConsumer<? super String, ? super Exception> exceptionConsumer) {
         this.baseUrl = Preconditions.checkNotNull(baseUrl);
         this.restClient = Preconditions.checkNotNull(restClient);
+        this.consumerExecutor = Preconditions.checkNotNull(consumerExecutor);
 
         if (null != exceptionConsumer) {
             this.exceptionConsumer = exceptionConsumer;
@@ -47,6 +67,7 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
                 }
             };
         }
+        assert null != this.exceptionConsumer;
     }
 
     @Override
@@ -66,20 +87,20 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
             public void run() {
                 try {
                     final ClientResponse response = webResource.get(ClientResponse.class);
-                    try {
-                        consumer.accept(relativeUrl, response);
-                    } finally {
-                        response.close();
-                    }
+                    consumerExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                consumer.accept(relativeUrl, response);
+                            } catch (final RuntimeException rex) {
+                                handleException(rex, relativeUrl, fullUrl);
+                            } finally {
+                                response.close();
+                            }
+                        }
+                    });
                 } catch (final RuntimeException rex) {
-                    try {
-                        exceptionConsumer.accept(relativeUrl, rex);
-                    } catch (final RuntimeException rex2) {
-                        log.error(
-                            "New error while processing earlier error " + rex +
-                                " while getting " + fullUrl,
-                            rex2);
-                    }
+                    handleException(rex, relativeUrl, fullUrl);
                 }
             }
         });
@@ -90,6 +111,28 @@ public final class JerseyMapGetter implements MapResourceProvider<String, Client
             return this.baseUrl.toExternalForm() + relativeUrl;
         } else {
             return this.baseUrl.toExternalForm();
+        }
+    }
+
+    private void handleException(
+            final Exception exception,
+            final String relativeUrl, final String fullUrl) {
+        try {
+            this.consumerExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        exceptionConsumer.accept(relativeUrl, exception);
+                    } catch (final RuntimeException rex) {
+                        log.error("Error in exception consumer for " + exception,
+                                  rex);
+                    }
+                }
+            });
+        } catch (final RuntimeException rex) {
+            log.error("Error dispatching exception consumer for " + exception +
+                        " while getting " + fullUrl,
+                      rex);
         }
     }
 
