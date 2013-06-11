@@ -28,7 +28,7 @@ implements SyncMapResourceProvider<URI, ClientResponse>,
     }
 
     @Override
-    public ClientResponse get(final URI uri) throws UniformInterfaceIOException, ClientHandlerIOException {
+    public ClientResponse getSync(final URI uri) throws UniformInterfaceIOException, ClientHandlerIOException {
         final WebResource webResource = this.restClient.resource(uri);
         try {
             final ClientResponse response = webResource.get(ClientResponse.class);
@@ -41,7 +41,7 @@ implements SyncMapResourceProvider<URI, ClientResponse>,
     }
 
     @Override
-    public ClientResponse delete(final URI uri) throws UniformInterfaceIOException, ClientHandlerIOException {
+    public ClientResponse deleteSync(final URI uri) throws UniformInterfaceIOException, ClientHandlerIOException {
         final WebResource webResource = this.restClient.resource(uri);
         try {
             final ClientResponse response = webResource.delete(ClientResponse.class);
@@ -54,7 +54,7 @@ implements SyncMapResourceProvider<URI, ClientResponse>,
     }
 
     @Override
-    public ClientResponse put(final URI uri, final Object update) throws UniformInterfaceIOException, ClientHandlerIOException {
+    public ClientResponse putSync(final URI uri, final Object update) throws UniformInterfaceIOException, ClientHandlerIOException {
         final WebResource webResource = this.restClient.resource(uri);
         try {
             final ClientResponse response = webResource.put(ClientResponse.class, update);
@@ -67,7 +67,7 @@ implements SyncMapResourceProvider<URI, ClientResponse>,
     }
 
     @Override
-    public ClientResponse update(final URI uri, final Object update) throws UniformInterfaceIOException, ClientHandlerIOException {
+    public ClientResponse updateSync(final URI uri, final Object update) throws UniformInterfaceIOException, ClientHandlerIOException {
         final WebResource webResource = this.restClient.resource(uri);
         try {
             final ClientResponse response = webResource.post(ClientResponse.class, update);
