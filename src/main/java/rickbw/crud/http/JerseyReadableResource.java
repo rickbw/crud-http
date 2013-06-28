@@ -1,36 +1,31 @@
 package rickbw.crud.http;
 
-import java.net.URI;
-
-import rickbw.crud.sync.SyncMapResourceProvider;
+import rickbw.crud.sync.SyncReadableResource;
 import com.google.common.base.Preconditions;
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
 
-public final class JerseyResourceProvider<RSRC>
-implements SyncMapResourceProvider<URI, HttpResponse<RSRC>> {
+public final class JerseyReadableResource<RSRC>
+implements SyncReadableResource<HttpResponse<RSRC>> {
 
-    private final RequestProvider requester;
+    private final UniformInterface resource;
     private final Class<? extends RSRC> resourceClass;
 
 
-    public JerseyResourceProvider(
-            final Client restClient,
-            final ClientConfiguration config,
+    public JerseyReadableResource(
+            final UniformInterface resource,
             final Class<? extends RSRC> resourceClass) {
-        this.requester = new RequestProvider(restClient, config);
+        this.resource = Preconditions.checkNotNull(resource);
         this.resourceClass = Preconditions.checkNotNull(resourceClass);
     }
 
     @Override
-    public HttpResponse<RSRC> getSync(final URI uri) throws UniformInterfaceIOException, ClientHandlerIOException {
-        final UniformInterface webResource = this.requester.getResource(uri);
+    public HttpResponse<RSRC> getSync() throws UniformInterfaceIOException, ClientHandlerIOException {
         try {
-            final ClientResponse response = webResource.get(ClientResponse.class);
+            final ClientResponse response = this.resource.get(ClientResponse.class);
             return HttpResponse.wrapAndClose(response, this.resourceClass);
         } catch (final UniformInterfaceException uix) {
             throw new UniformInterfaceIOException(uix);
