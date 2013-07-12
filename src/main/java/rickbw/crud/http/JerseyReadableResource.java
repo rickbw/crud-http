@@ -1,37 +1,47 @@
 package rickbw.crud.http;
 
-import rickbw.crud.sync.SyncReadableResource;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+
+import rickbw.crud.ReadableResource;
+import rickbw.crud.adapter.AsyncObservationFunction;
 import com.google.common.base.Preconditions;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
-import com.sun.jersey.api.client.UniformInterfaceException;
+
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.util.functions.Func1;
 
 
 public final class JerseyReadableResource<RSRC>
-implements SyncReadableResource<HttpResponse<RSRC>> {
+implements ReadableResource<HttpResponse<RSRC>> {
 
-    private final UniformInterface resource;
-    private final Class<? extends RSRC> resourceClass;
+    private final Func1<Observer<HttpResponse<RSRC>>, Subscription> subscribeAction;
 
 
     public JerseyReadableResource(
             final UniformInterface resource,
-            final Class<? extends RSRC> resourceClass) {
-        this.resource = Preconditions.checkNotNull(resource);
-        this.resourceClass = Preconditions.checkNotNull(resourceClass);
+            final Class<? extends RSRC> resourceClass,
+            final ExecutorService executor) {
+        Preconditions.checkNotNull(resource);
+        Preconditions.checkNotNull(resourceClass);
+
+        final Callable<HttpResponse<RSRC>> responseProvider = new Callable<HttpResponse<RSRC>>() {
+            @Override
+            public HttpResponse<RSRC> call() {
+                final ClientResponse response = resource.get(ClientResponse.class);
+                final HttpResponse<RSRC> safeResponse = HttpResponse.wrapAndClose(response, resourceClass);
+                return safeResponse;
+            }
+        };
+        this.subscribeAction = new AsyncObservationFunction<HttpResponse<RSRC>>(responseProvider, executor);
     }
 
     @Override
-    public HttpResponse<RSRC> getSync() throws UniformInterfaceIOException, ClientHandlerIOException {
-        try {
-            final ClientResponse response = this.resource.get(ClientResponse.class);
-            return HttpResponse.wrapAndClose(response, this.resourceClass);
-        } catch (final UniformInterfaceException uix) {
-            throw new UniformInterfaceIOException(uix);
-        } catch (final ClientHandlerException chx) {
-            throw new ClientHandlerIOException(chx);
-        }
+    public Observable<HttpResponse<RSRC>> get() {
+        return Observable.create(this.subscribeAction);
     }
 
 }
