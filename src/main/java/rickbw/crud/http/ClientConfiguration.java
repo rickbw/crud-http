@@ -3,8 +3,6 @@ package rickbw.crud.http;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.MediaType;
@@ -22,16 +20,6 @@ public final class ClientConfiguration {
     private final Set<MediaType> mediaTypes = Sets.newHashSet();
     private final Map<String, Object> headers = Maps.newHashMap();
 
-    private final ExecutorService executor;
-
-
-    public ClientConfiguration() {
-        this(Executors.newSingleThreadExecutor());
-    }
-
-    public ClientConfiguration(final ExecutorService executor) {
-        this.executor = Preconditions.checkNotNull(executor);
-    }
 
     @Nullable
     public MediaType getType() {
@@ -69,10 +57,6 @@ public final class ClientConfiguration {
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(value);
         this.headers.put(name, value);
-    }
-
-    public ExecutorService getExecutor() {
-        return this.executor;
     }
 
 }

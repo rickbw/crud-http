@@ -23,7 +23,7 @@ implements ReadableResourceProvider<URI, HttpResponse<RSRC>> {
             final ClientConfiguration config) {
         this.requester = new RequestProvider(restClient, config);
         this.resourceClass = Preconditions.checkNotNull(resourceClass);
-        this.executor = config.getExecutor();
+        this.executor = restClient.getExecutorService();
     }
 
     @Override
