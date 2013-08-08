@@ -55,11 +55,15 @@ public final class HttpResponse<ENTITY> {
     public static <ENTITY> HttpResponse<ENTITY> wrapAndClose(
             final ClientResponse delegate,
             final Class<? extends ENTITY> entityType) {
-        if (delegate.getStatus() == 204 /*no content*/ || !delegate.hasEntity()) {
-            return new HttpResponse<ENTITY>(delegate, null);
-        } else {
-            final ENTITY entity = delegate.getEntity(entityType);
-            return new HttpResponse<ENTITY>(delegate, entity);
+        try {
+            if (delegate.getStatus() == 204 /*no content*/ || !delegate.hasEntity()) {
+                return new HttpResponse<ENTITY>(delegate, null);
+            } else {
+                final ENTITY entity = delegate.getEntity(entityType);
+                return new HttpResponse<ENTITY>(delegate, entity);
+            }
+        } finally {
+            delegate.close();
         }
     }
 
