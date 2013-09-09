@@ -44,4 +44,6 @@ implements DeletableResource<HttpResponse<RESPONSE>> {
         return Observable.create(this.subscribeAction);
     }
 
+    // TODO: equals() and hashCode()
+
 }

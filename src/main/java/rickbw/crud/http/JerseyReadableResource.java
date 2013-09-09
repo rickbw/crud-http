@@ -44,4 +44,6 @@ implements ReadableResource<HttpResponse<RSRC>> {
         return Observable.create(this.subscribeAction);
     }
 
+    // TODO: equals() and hashCode()
+
 }

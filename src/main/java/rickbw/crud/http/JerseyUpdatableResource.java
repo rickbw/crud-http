@@ -47,4 +47,6 @@ implements UpdatableResource<Object, HttpResponse<RESPONSE>> {
         return Observable.create(subscribeAction);
     }
 
+    // TODO: equals() and hashCode()
+
 }
