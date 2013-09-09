@@ -14,7 +14,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.ext.MessageBodyReader;
 
-import org.joda.time.DateTime;
+import org.joda.time.Instant;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -145,9 +145,9 @@ public final class HttpResponse<ENTITY> {
      *
      * @return the last modified date, if present.
      */
-    public Optional<DateTime> getLastModified() {
+    public Optional<Instant> getLastModified() {
         @Nullable final Date lastModified = this.delegate.getLastModified();
-        return toDateTime(lastModified);
+        return toInstant(lastModified);
     }
 
     public WebResourceLinkHeaders getLinks() {
@@ -185,9 +185,9 @@ public final class HttpResponse<ENTITY> {
      *
      * @return the server side response date, if present.
      */
-    public Optional<DateTime> getResponseDate() {
+    public Optional<Instant> getResponseDate() {
         @Nullable final Date responseDate = this.delegate.getResponseDate();
-        return toDateTime(responseDate);
+        return toInstant(responseDate);
     }
 
     /**
@@ -285,11 +285,11 @@ public final class HttpResponse<ENTITY> {
         this.entity = Optional.fromNullable(entity);
     }
 
-    private static Optional<DateTime> toDateTime(@Nullable final Date date) {
+    private static Optional<Instant> toInstant(@Nullable final Date date) {
         if (null == date) {
             return Optional.absent();
         } else {
-            return Optional.of(new DateTime(date.getTime()));
+            return Optional.of(new Instant(date.getTime()));
         }
     }
 
