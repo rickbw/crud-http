@@ -1,4 +1,4 @@
-package rickbw.crud.example;
+package rickbw.crud.http.example;
 
 import java.net.URI;
 
@@ -8,12 +8,13 @@ import javax.ws.rs.core.MediaType;
 import rickbw.crud.ReadableResourceProvider;
 import rickbw.crud.WritableResourceProvider;
 import rickbw.crud.adapter.ResourceProviders;
+import com.google.common.base.Function;
+import com.sun.jersey.api.client.Client;
+
 import rickbw.crud.http.ClientConfiguration;
 import rickbw.crud.http.HttpResponse;
 import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
-import com.google.common.base.Function;
-import com.sun.jersey.api.client.Client;
 
 
 /*package*/ class FakeApplicationContext {

@@ -1,4 +1,4 @@
-package rickbw.crud.example;
+package rickbw.crud.http.example;
 
 import rickbw.crud.ReadableResource;
 import rickbw.crud.ReadableResourceProvider;
