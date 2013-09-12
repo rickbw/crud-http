@@ -16,10 +16,9 @@ import rx.util.functions.Func1;
 
 
 public final class JerseyUpdatableResource<RESPONSE>
+extends AbstractJerseyResource<RESPONSE>
 implements UpdatableResource<Object, HttpResponse<RESPONSE>> {
 
-    private final UniformInterface resource;
-    private final Class<? extends RESPONSE> responseClass;
     private final ExecutorService executor;
 
 
@@ -27,8 +26,7 @@ implements UpdatableResource<Object, HttpResponse<RESPONSE>> {
             final UniformInterface resource,
             final Class<? extends RESPONSE> responseClass,
             final ExecutorService executor) {
-        this.resource = Preconditions.checkNotNull(resource);
-        this.responseClass = Preconditions.checkNotNull(responseClass);
+        super(resource, responseClass);
         this.executor = Preconditions.checkNotNull(executor);
     }
 
@@ -37,8 +35,8 @@ implements UpdatableResource<Object, HttpResponse<RESPONSE>> {
         final Callable<HttpResponse<RESPONSE>> responseProvider = new Callable<HttpResponse<RESPONSE>>() {
             @Override
             public HttpResponse<RESPONSE> call() {
-                final ClientResponse response = resource.post(ClientResponse.class, update);
-                final HttpResponse<RESPONSE> safeResponse = HttpResponse.wrapAndClose(response, responseClass);
+                final ClientResponse response = getResource().post(ClientResponse.class, update);
+                final HttpResponse<RESPONSE> safeResponse = HttpResponse.wrapAndClose(response, getResponseClass());
                 return safeResponse;
             }
         };
@@ -46,7 +44,5 @@ implements UpdatableResource<Object, HttpResponse<RESPONSE>> {
                 new AsyncObservationFunction<HttpResponse<RESPONSE>>(responseProvider, this.executor);
         return Observable.create(subscribeAction);
     }
-
-    // TODO: equals() and hashCode()
 
 }

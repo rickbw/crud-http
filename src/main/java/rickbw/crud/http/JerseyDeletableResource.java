@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 
 import rickbw.crud.DeletableResource;
 import rickbw.crud.adapter.AsyncObservationFunction;
-import com.google.common.base.Preconditions;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
@@ -16,6 +15,7 @@ import rx.util.functions.Func1;
 
 
 public final class JerseyDeletableResource<RESPONSE>
+extends AbstractJerseyResource<RESPONSE>
 implements DeletableResource<HttpResponse<RESPONSE>> {
 
     private final Func1<Observer<HttpResponse<RESPONSE>>, Subscription> subscribeAction;
@@ -25,8 +25,7 @@ implements DeletableResource<HttpResponse<RESPONSE>> {
             final UniformInterface resource,
             final Class<? extends RESPONSE> responseClass,
             final ExecutorService executor) {
-        Preconditions.checkNotNull(resource);
-        Preconditions.checkNotNull(responseClass);
+        super(resource, responseClass);
 
         final Callable<HttpResponse<RESPONSE>> responseProvider = new Callable<HttpResponse<RESPONSE>>() {
             @Override
@@ -43,7 +42,5 @@ implements DeletableResource<HttpResponse<RESPONSE>> {
     public Observable<HttpResponse<RESPONSE>> delete() {
         return Observable.create(this.subscribeAction);
     }
-
-    // TODO: equals() and hashCode()
 
 }

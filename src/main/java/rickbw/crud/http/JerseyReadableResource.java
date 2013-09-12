@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 
 import rickbw.crud.ReadableResource;
 import rickbw.crud.adapter.AsyncObservationFunction;
-import com.google.common.base.Preconditions;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
@@ -16,6 +15,7 @@ import rx.util.functions.Func1;
 
 
 public final class JerseyReadableResource<RSRC>
+extends AbstractJerseyResource<RSRC>
 implements ReadableResource<HttpResponse<RSRC>> {
 
     private final Func1<Observer<HttpResponse<RSRC>>, Subscription> subscribeAction;
@@ -25,8 +25,7 @@ implements ReadableResource<HttpResponse<RSRC>> {
             final UniformInterface resource,
             final Class<? extends RSRC> resourceClass,
             final ExecutorService executor) {
-        Preconditions.checkNotNull(resource);
-        Preconditions.checkNotNull(resourceClass);
+        super(resource, resourceClass);
 
         final Callable<HttpResponse<RSRC>> responseProvider = new Callable<HttpResponse<RSRC>>() {
             @Override
@@ -43,7 +42,5 @@ implements ReadableResource<HttpResponse<RSRC>> {
     public Observable<HttpResponse<RSRC>> get() {
         return Observable.create(this.subscribeAction);
     }
-
-    // TODO: equals() and hashCode()
 
 }
