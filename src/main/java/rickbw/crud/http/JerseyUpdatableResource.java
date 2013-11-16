@@ -32,6 +32,8 @@ implements UpdatableResource<Object, HttpResponse<RESPONSE>> {
 
     @Override
     public Observable<HttpResponse<RESPONSE>> update(final Object update) {
+        Preconditions.checkNotNull(update);
+
         final Callable<HttpResponse<RESPONSE>> responseProvider = new Callable<HttpResponse<RESPONSE>>() {
             @Override
             public HttpResponse<RESPONSE> call() {

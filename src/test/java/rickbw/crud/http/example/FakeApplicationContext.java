@@ -15,11 +15,6 @@ import rickbw.crud.util.ResourceProviders;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 
-import rickbw.crud.http.ClientConfiguration;
-import rickbw.crud.http.HttpResponse;
-import rickbw.crud.http.JerseyReadableResourceProvider;
-import rickbw.crud.http.JerseyWritableResourceProvider;
-
 
 /*package*/ class FakeApplicationContext {
 

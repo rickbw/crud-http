@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.ws.rs.core.MediaType;
 
+import rickbw.crud.ResourceProvider;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -14,6 +15,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 
+/**
+ * A container for the state used to initialize HTTP
+ * {@link ResourceProvider}s.
+ */
 public final class ClientConfiguration {
     @Nullable
     private MediaType type = null;

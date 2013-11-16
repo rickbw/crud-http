@@ -32,6 +32,8 @@ implements WritableResource<Object, HttpResponse<RESPONSE>> {
 
     @Override
     public Observable<HttpResponse<RESPONSE>> write(final Object resourceState) {
+        Preconditions.checkNotNull(resourceState);
+
         final Callable<HttpResponse<RESPONSE>> responseProvider = new Callable<HttpResponse<RESPONSE>>() {
             @Override
             public HttpResponse<RESPONSE> call() {

@@ -29,6 +29,7 @@ import com.sun.jersey.api.client.WebResourceLinkHeaders;
  * flaws in that class:
  * <ul>
  *  <li>It is type-safe.</li>
+ *  <li>It is null-safe.</li>
  *  <li>It is immutable (with the possible exception of certain nested
  *      objects).</li>
  *  <li>It does not require closing, thereby preventing potentially severe
@@ -46,7 +47,7 @@ public final class HttpResponse<ENTITY> {
 
     /**
      * Create a new HttpResponse to wrap the given {@link ClientResponse},
-     * and then call {@link ClientResponse#close()} on it.
+     * read its entity, and then call {@link ClientResponse#close()} on it.
      *
      * @throws ClientHandlerException If there is an error reading from the
      *         response, such as if there is no {@link MessageBodyReader}
@@ -69,7 +70,7 @@ public final class HttpResponse<ENTITY> {
 
     /**
      * Get the allowed HTTP methods from the Allow HTTP header.
-     * <p>
+     *
      * Note that the Allow HTTP header will be returned from an OPTIONS
      * request.
      *
@@ -77,7 +78,9 @@ public final class HttpResponse<ENTITY> {
      *         upper case strings.
      */
     public Set<String> getAllow() {
-        return this.delegate.getAllow();
+        final Set<String> allow = this.delegate.getAllow();
+        assert null != allow;
+        return allow;
     }
 
     /**
@@ -110,12 +113,14 @@ public final class HttpResponse<ENTITY> {
      * @return the cookies.
      */
     public List<NewCookie> getCookies() {
-        return this.delegate.getCookies();
+        final List<NewCookie> cookies = this.delegate.getCookies();
+        assert null != cookies;
+        return cookies;
     }
 
     /**
      * Get the entity of the response. Note that not all responses have
-     * entities, e.g. 2.04 responses, so it may not be present.
+     * entities, e.g. 204 responses, so it may not be present.
      */
     public Optional<ENTITY> getEntity() {
         return this.entity;
@@ -137,7 +142,9 @@ public final class HttpResponse<ENTITY> {
      * @return the HTTP headers of the response.
      */
     public MultivaluedMap<String, String> getHeaders() {
-        return this.delegate.getHeaders();
+        final MultivaluedMap<String, String> headers = this.delegate.getHeaders();
+        assert null != headers;
+        return headers;
     }
 
     /**
@@ -151,7 +158,9 @@ public final class HttpResponse<ENTITY> {
     }
 
     public WebResourceLinkHeaders getLinks() {
-        return this.delegate.getLinks();
+        final WebResourceLinkHeaders links = this.delegate.getLinks();
+        assert null != links;
+        return links;
     }
 
     /**
@@ -164,10 +173,9 @@ public final class HttpResponse<ENTITY> {
         return Optional.fromNullable(location);
     }
 
-
     /**
      * Get the map of response properties.
-     * <p>
+     *
      * A response property is an application-defined property that may be
      * added by the user, a filter, or the handler that is managing the
      * connection.
@@ -176,9 +184,9 @@ public final class HttpResponse<ENTITY> {
      */
     public Map<String, Object> getProperties() {
         final Map<String, Object> properties = this.delegate.getProperties();
+        assert null != properties;
         return Collections.unmodifiableMap(properties);
     }
-
 
     /**
      * Get response date (server side, i.e. from the Date header).
