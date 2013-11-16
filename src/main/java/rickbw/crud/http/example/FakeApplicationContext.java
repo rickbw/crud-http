@@ -7,7 +7,11 @@ import javax.ws.rs.core.MediaType;
 
 import rickbw.crud.ReadableResourceProvider;
 import rickbw.crud.WritableResourceProvider;
-import rickbw.crud.adapter.ResourceProviders;
+import rickbw.crud.http.ClientConfiguration;
+import rickbw.crud.http.HttpResponse;
+import rickbw.crud.http.JerseyReadableResourceProvider;
+import rickbw.crud.http.JerseyWritableResourceProvider;
+import rickbw.crud.util.ResourceProviders;
 import com.google.common.base.Function;
 import com.sun.jersey.api.client.Client;
 

@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 import rickbw.crud.DeletableResource;
-import rickbw.crud.adapter.AsyncObservationFunction;
+import rickbw.crud.util.AsyncObservationFunction;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
