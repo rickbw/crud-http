@@ -11,9 +11,11 @@ import rickbw.crud.http.ClientConfiguration;
 import rickbw.crud.http.HttpResponse;
 import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
-import rickbw.crud.util.ResourceProviders;
-import com.google.common.base.Function;
+import rickbw.crud.util.ReadableResourceProviders;
+import rickbw.crud.util.WritableResourceProviders;
 import com.sun.jersey.api.client.Client;
+
+import rx.util.functions.Func1;
 
 
 /*package*/ class FakeApplicationContext {
@@ -29,9 +31,9 @@ import com.sun.jersey.api.client.Client;
         this.restConfigBean.addHeader("X-protobuf-message", User.class.getName());
     }
 
-    private final Function<Long, URI> urlBuilderBean = new Function<Long, URI>() {
+    private final Func1<Long, URI> urlBuilderBean = new Func1<Long, URI>() {
         @Override
-        public URI apply(@Nullable final Long input) {
+        public URI call(@Nullable final Long input) {
             if (null == input) {
                 return null;
             }
@@ -58,12 +60,12 @@ import com.sun.jersey.api.client.Client;
             /* TODO: Provide utility method to adapt key and response in one
              * step, to avoid this nested construction.
              */
-            ResourceProviders.adaptKey(
-                    ResourceProviders.map(
+            ReadableResourceProviders.adaptKey(
+                    ReadableResourceProviders.map(
                             this.restGetBean,
-                            new Function<HttpResponse<User>, User>() {
+                            new Func1<HttpResponse<User>, User>() {
                                 @Override
-                                public User apply(@Nullable final HttpResponse<User> input) {
+                                public User call(@Nullable final HttpResponse<User> input) {
                                     return input.getEntity().get();
                                 }
                             }),
@@ -76,12 +78,12 @@ import com.sun.jersey.api.client.Client;
             /* TODO: Provide utility method to adapt key and response in one
              * step, to avoid this nested construction.
              */
-            ResourceProviders.adaptKey(
-                    ResourceProviders.<URI, User, HttpResponse<User>, Boolean>map(
+            WritableResourceProviders.adaptKey(
+                    WritableResourceProviders.<URI, User, HttpResponse<User>, Boolean>map(
                             this.restPutBean,
-                            new Function<HttpResponse<User>, Boolean>() {
+                            new Func1<HttpResponse<User>, Boolean>() {
                                 @Override
-                                public Boolean apply(@Nullable final HttpResponse<User> input) {
+                                public Boolean call(@Nullable final HttpResponse<User> input) {
                                     return input.getStatusCode() < 300;
                                 }
                             }),
