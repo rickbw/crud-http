@@ -12,7 +12,14 @@ The four primary HTTP methods are all supported:
 Most applications will not use these `Resource` implementation classes directly. Instead, they will start with the corresponding `ResourceProviders`, which implement URI-based lookup of particular `Resources`. For example, [JerseyReadableResourceProvider](https://github.com/rickbw/crud-http/blob/master/src/main/java/rickbw/crud/http/JerseyReadableResourceProvider.java) provides instances of `JerseyReadableResource` on demand.
 
 
+See Also
+--------
+* The [Crud API](https://github.com/rickbw/crud-api) project (`crud-api`) defines the core abstractions and the public API on which this project is based.
+* `crud-api` is built on top of [RxJava](https://github.com/Netflix/RxJava/).
+* The Crud HTTP implementation is based on [Jersey](https://jersey.java.net), a widely used REST toolkit, and the reference implementation of JAX-RS.
+* [Crud JDBC](https://github.com/rickbw/crud-jdbc) (`crud-jdbc`) is a sister project to this project, implemented for JDBC instead of HTTP.
+
+
 Copyright and License
 ---------------------
-All files in this project are copyright Rick Warren and, unless otherwise
-noted, licensed under the terms of the Apache 2 license.
+All files in this project are copyright Rick Warren and, unless otherwise noted, licensed under the terms of the Apache 2 license.
