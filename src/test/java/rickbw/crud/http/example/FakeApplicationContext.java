@@ -28,8 +28,8 @@ import rickbw.crud.http.ClientConfiguration;
 import rickbw.crud.http.HttpResponse;
 import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
-import rickbw.crud.util.ReadableResourceProviders;
-import rickbw.crud.util.WritableResourceProviders;
+import rickbw.crud.util.FluentReadableResourceProvider;
+import rickbw.crud.util.FluentWritableResourceProvider;
 import rx.util.functions.Func1;
 
 
@@ -72,37 +72,27 @@ import rx.util.functions.Func1;
      * or some other source. It doesn't have to be a REST service.
      */
     private final ReadableResourceProvider<Long, User> adaptedGetBean =
-            /* TODO: Provide utility method to adapt key and response in one
-             * step, to avoid this nested construction.
-             */
-            ReadableResourceProviders.adaptKey(
-                    ReadableResourceProviders.map(
-                            this.restGetBean,
-                            new Func1<HttpResponse<User>, User>() {
-                                @Override
-                                public User call(@Nullable final HttpResponse<User> input) {
-                                    return input.getEntity().get();
-                                }
-                            }),
-                    this.urlBuilderBean);
+            FluentReadableResourceProvider.from(this.restGetBean)
+                    .map(new Func1<HttpResponse<User>, User>() {
+                        @Override
+                        public User call(@Nullable final HttpResponse<User> input) {
+                            return input.getEntity().get();
+                        }
+                    })
+                    .adaptKey(this.urlBuilderBean);
 
     /* With different implementations, this could be backed by a Voldemort
      * or some other source. It doesn't have to be a REST service.
      */
     private final WritableResourceProvider<Long, User, Boolean> adaptedPutBean =
-            /* TODO: Provide utility method to adapt key and response in one
-             * step, to avoid this nested construction.
-             */
-            WritableResourceProviders.adaptKey(
-                    WritableResourceProviders.<URI, User, HttpResponse<User>, Boolean>map(
-                            this.restPutBean,
-                            new Func1<HttpResponse<User>, Boolean>() {
-                                @Override
-                                public Boolean call(@Nullable final HttpResponse<User> input) {
-                                    return input.getStatusCode() < 300;
-                                }
-                            }),
-                    this.urlBuilderBean);
+            FluentWritableResourceProvider.<URI, User, HttpResponse<User>>from(this.restPutBean)
+                    .map(new Func1<HttpResponse<User>, Boolean>() {
+                        @Override
+                        public Boolean call(@Nullable final HttpResponse<User> input) {
+                            return input.getStatusCode() < 300;
+                        }
+                    })
+                    .adaptKey(this.urlBuilderBean);
 
     /* The appBean doesn't care that this ResourceProvider supports both read
      * and write operations. That combination is just included here by way of
