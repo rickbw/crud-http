@@ -96,33 +96,11 @@ the License.
             <version>4.5</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-            <version>1.8.5</version>
-        </dependency>
 
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-apache-client4</artifactId>
-            <version>${jersey-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sonatype.spice</groupId>
-            <artifactId>jersey-ahc-client</artifactId>
-            <version>1.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>stax-api</artifactId>
-                    <groupId>javax.xml.stream</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -197,9 +175,7 @@ the License.
                         <configuration>
                             <rules>
                                 <banDuplicateClasses>
-                                    <ignoreClasses>
-                                        <ignoreClass>org/hamcrest/*</ignoreClass> <!-- mockito and junit share no issue -->
-                                    </ignoreClasses>
+                                    <ignoreClasses />
                                     <findAllDuplicates>true</findAllDuplicates>
                                 </banDuplicateClasses>
                             </rules>
