@@ -49,7 +49,7 @@ import rx.Observer;
             }
 
             @Override
-            public void onError(final Exception ex) {
+            public void onError(final Throwable ex) {
                 System.err.println("Failed to get user.");
             }
         });

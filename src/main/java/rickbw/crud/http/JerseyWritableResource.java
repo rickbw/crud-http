@@ -25,9 +25,6 @@ import com.sun.jersey.api.client.UniformInterface;
 import rickbw.crud.WritableResource;
 import rickbw.crud.util.AsyncObservationFunction;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.util.functions.Func1;
 
 
 public final class JerseyWritableResource<RESPONSE>
@@ -57,8 +54,9 @@ implements WritableResource<Object, HttpResponse<RESPONSE>> {
                 return safeResponse;
             }
         };
-        final Func1<Observer<HttpResponse<RESPONSE>>, Subscription> subscribeAction =
-                new AsyncObservationFunction<HttpResponse<RESPONSE>>(responseProvider, this.executor);
+        final Observable.OnSubscribe<HttpResponse<RESPONSE>> subscribeAction = new AsyncObservationFunction<>(
+                responseProvider,
+                this.executor);
         return Observable.create(subscribeAction);
     }
 

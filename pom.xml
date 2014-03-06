@@ -22,13 +22,14 @@ the License.
     <groupId>rickbw</groupId>
     <artifactId>crud-http</artifactId>
     <name>Crud HTTP Implementation</name>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <description>
         An implementation of the Crud API for HTTP.
     </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <rxjava-version>0.17.0-RC7</rxjava-version>
         <jersey-version>1.14</jersey-version>
     </properties>
 
@@ -87,7 +88,7 @@ the License.
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-core</artifactId>
-            <version>0.9.0</version>
+            <version>${rxjava-version}</version>
         </dependency>
 
         <dependency>
@@ -106,7 +107,7 @@ the License.
         <dependency>
             <groupId>rickbw</groupId>
             <artifactId>crud-api</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

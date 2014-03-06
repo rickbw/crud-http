@@ -30,7 +30,7 @@ import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
 import rickbw.crud.util.FluentReadableResourceProvider;
 import rickbw.crud.util.FluentWritableResourceProvider;
-import rx.util.functions.Func1;
+import rx.functions.Func1;
 
 
 /*package*/ class FakeApplicationContext {

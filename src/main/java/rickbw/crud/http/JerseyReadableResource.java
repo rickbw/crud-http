@@ -24,16 +24,13 @@ import com.sun.jersey.api.client.UniformInterface;
 import rickbw.crud.ReadableResource;
 import rickbw.crud.util.AsyncObservationFunction;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.util.functions.Func1;
 
 
 public final class JerseyReadableResource<RSRC>
 extends AbstractJerseyResource<RSRC>
 implements ReadableResource<HttpResponse<RSRC>> {
 
-    private final Func1<Observer<HttpResponse<RSRC>>, Subscription> subscribeAction;
+    private final Observable.OnSubscribe<HttpResponse<RSRC>> subscribeAction;
 
 
     public JerseyReadableResource(
@@ -50,7 +47,7 @@ implements ReadableResource<HttpResponse<RSRC>> {
                 return safeResponse;
             }
         };
-        this.subscribeAction = new AsyncObservationFunction<HttpResponse<RSRC>>(responseProvider, executor);
+        this.subscribeAction = new AsyncObservationFunction<>(responseProvider, executor);
     }
 
     @Override

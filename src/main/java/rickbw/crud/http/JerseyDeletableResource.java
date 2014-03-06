@@ -24,16 +24,13 @@ import com.sun.jersey.api.client.UniformInterface;
 import rickbw.crud.DeletableResource;
 import rickbw.crud.util.AsyncObservationFunction;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.util.functions.Func1;
 
 
 public final class JerseyDeletableResource<RESPONSE>
 extends AbstractJerseyResource<RESPONSE>
 implements DeletableResource<HttpResponse<RESPONSE>> {
 
-    private final Func1<Observer<HttpResponse<RESPONSE>>, Subscription> subscribeAction;
+    private final Observable.OnSubscribe<HttpResponse<RESPONSE>> subscribeAction;
 
 
     public JerseyDeletableResource(
@@ -50,7 +47,7 @@ implements DeletableResource<HttpResponse<RESPONSE>> {
                 return safeResponse;
             }
         };
-        this.subscribeAction = new AsyncObservationFunction<HttpResponse<RESPONSE>>(responseProvider, executor);
+        this.subscribeAction = new AsyncObservationFunction<>(responseProvider, executor);
     }
 
     @Override
