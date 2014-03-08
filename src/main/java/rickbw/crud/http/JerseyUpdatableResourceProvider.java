@@ -18,26 +18,26 @@ package rickbw.crud.http;
 import java.net.URI;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
 import rickbw.crud.UpdatableResourceProvider;
 
 
-public final class JerseyUpdatableResourceProvider<RESPONSE>
-extends AbstractResourceProvider<RESPONSE>
-implements UpdatableResourceProvider<URI, Object, HttpResponse<RESPONSE>> {
+public final class JerseyUpdatableResourceProvider
+extends AbstractResourceProvider
+implements UpdatableResourceProvider<URI, Object, ClientResponse> {
 
     public JerseyUpdatableResourceProvider(
             final Client restClient,
-            final Class<? extends RESPONSE> responseClass,
             final ClientConfiguration config) {
-        super(restClient, responseClass, config);
+        super(restClient, config);
     }
 
     @Override
-    public JerseyUpdatableResource<RESPONSE> get(final URI uri) {
+    public JerseyUpdatableResource get(final URI uri) {
         final UniformInterface resource = getResource(uri);
-        return new JerseyUpdatableResource<RESPONSE>(resource, getResponseClass(), getExecutor());
+        return new JerseyUpdatableResource(resource, getExecutor());
     }
 
 }

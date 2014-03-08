@@ -18,26 +18,26 @@ package rickbw.crud.http;
 import java.net.URI;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
 import rickbw.crud.DeletableResourceProvider;
 
 
-public final class JerseyDeletableResourceProvider<RESPONSE>
-extends AbstractResourceProvider<RESPONSE>
-implements DeletableResourceProvider<URI, HttpResponse<RESPONSE>> {
+public final class JerseyDeletableResourceProvider
+extends AbstractResourceProvider
+implements DeletableResourceProvider<URI, ClientResponse> {
 
     public JerseyDeletableResourceProvider(
             final Client restClient,
-            final Class<? extends RESPONSE> resourceClass,
             final ClientConfiguration config) {
-        super(restClient, resourceClass, config);
+        super(restClient, config);
     }
 
     @Override
-    public JerseyDeletableResource<RESPONSE> get(final URI uri) {
+    public JerseyDeletableResource get(final URI uri) {
         final UniformInterface resource = getResource(uri);
-        return new JerseyDeletableResource<RESPONSE>(resource, getResponseClass(), getExecutor());
+        return new JerseyDeletableResource(resource, getExecutor());
     }
 
 }

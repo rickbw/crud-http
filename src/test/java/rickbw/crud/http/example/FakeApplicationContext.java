@@ -17,15 +17,14 @@ package rickbw.crud.http.example;
 
 import java.net.URI;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 
 import rickbw.crud.ReadableResourceProvider;
 import rickbw.crud.WritableResourceProvider;
 import rickbw.crud.http.ClientConfiguration;
-import rickbw.crud.http.HttpResponse;
 import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
 import rickbw.crud.util.FluentReadableResourceProvider;
@@ -48,24 +47,19 @@ import rx.functions.Func1;
 
     private final Func1<Long, URI> urlBuilderBean = new Func1<Long, URI>() {
         @Override
-        public URI call(@Nullable final Long input) {
-            if (null == input) {
-                return null;
-            }
+        public URI call(final Long input) {
             return URI.create("http://localhost/user/" + input);
         }
     };
 
-    private final ReadableResourceProvider<URI, HttpResponse<User>> restGetBean =
-            new JerseyReadableResourceProvider<User>(
+    private final ReadableResourceProvider<URI, ClientResponse> restGetBean =
+            new JerseyReadableResourceProvider(
                     this.restClientBean,
-                    User.class,
                     this.restConfigBean);
 
-    private final WritableResourceProvider<URI, Object, HttpResponse<User>> restPutBean =
-            new JerseyWritableResourceProvider<User>(
+    private final WritableResourceProvider<URI, Object, ClientResponse> restPutBean =
+            new JerseyWritableResourceProvider(
                     this.restClientBean,
-                    User.class,
                     this.restConfigBean);
 
     /* With different implementations, this could be backed by a Voldemort
@@ -73,10 +67,10 @@ import rx.functions.Func1;
      */
     private final ReadableResourceProvider<Long, User> adaptedGetBean =
             FluentReadableResourceProvider.from(this.restGetBean)
-                    .map(new Func1<HttpResponse<User>, User>() {
+                    .map(new Func1<ClientResponse, User>() {
                         @Override
-                        public User call(@Nullable final HttpResponse<User> input) {
-                            return input.getEntity().get();
+                        public User call(final ClientResponse input) {
+                            return input.getEntity(User.class);
                         }
                     })
                     .adaptKey(this.urlBuilderBean);
@@ -85,11 +79,11 @@ import rx.functions.Func1;
      * or some other source. It doesn't have to be a REST service.
      */
     private final WritableResourceProvider<Long, User, Boolean> adaptedPutBean =
-            FluentWritableResourceProvider.<URI, User, HttpResponse<User>>from(this.restPutBean)
-                    .map(new Func1<HttpResponse<User>, Boolean>() {
+            FluentWritableResourceProvider.<URI, User, ClientResponse>from(this.restPutBean)
+                    .map(new Func1<ClientResponse, Boolean>() {
                         @Override
-                        public Boolean call(@Nullable final HttpResponse<User> input) {
-                            return input.getStatusCode() < 300;
+                        public Boolean call(final ClientResponse input) {
+                            return input.getStatus() < 300;
                         }
                     })
                     .adaptKey(this.urlBuilderBean);

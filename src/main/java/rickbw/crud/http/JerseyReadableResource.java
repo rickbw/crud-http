@@ -26,33 +26,33 @@ import rickbw.crud.util.AsyncObservationFunction;
 import rx.Observable;
 
 
-public final class JerseyReadableResource<RSRC>
-extends AbstractJerseyResource<RSRC>
-implements ReadableResource<HttpResponse<RSRC>> {
+public final class JerseyReadableResource
+extends AbstractJerseyResource
+implements ReadableResource<ClientResponse> {
 
-    private final Observable.OnSubscribe<HttpResponse<RSRC>> subscribeAction;
+    private final Observable.OnSubscribe<ClientResponse> subscribeAction;
 
 
     public JerseyReadableResource(
             final UniformInterface resource,
-            final Class<? extends RSRC> resourceClass,
             final ExecutorService executor) {
-        super(resource, resourceClass);
+        super(resource);
 
-        final Callable<HttpResponse<RSRC>> responseProvider = new Callable<HttpResponse<RSRC>>() {
+        final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
-            public HttpResponse<RSRC> call() {
+            public ClientResponse call() {
                 final ClientResponse response = resource.get(ClientResponse.class);
-                final HttpResponse<RSRC> safeResponse = HttpResponse.wrapAndClose(response, resourceClass);
-                return safeResponse;
+                return response;
             }
         };
         this.subscribeAction = new AsyncObservationFunction<>(responseProvider, executor);
     }
 
     @Override
-    public Observable<HttpResponse<RSRC>> get() {
-        return Observable.create(this.subscribeAction);
+    public Observable<ClientResponse> get() {
+        final Observable<ClientResponse> obs = Observable.create(this.subscribeAction);
+        final Observable<ClientResponse> safeObs = obs.lift(ClientResponseCloser.instance());
+        return safeObs;
     }
 
 }

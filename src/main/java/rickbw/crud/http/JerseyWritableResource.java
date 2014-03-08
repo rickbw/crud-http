@@ -27,37 +27,36 @@ import rickbw.crud.util.AsyncObservationFunction;
 import rx.Observable;
 
 
-public final class JerseyWritableResource<RESPONSE>
-extends AbstractJerseyResource<RESPONSE>
-implements WritableResource<Object, HttpResponse<RESPONSE>> {
+public final class JerseyWritableResource
+extends AbstractJerseyResource
+implements WritableResource<Object, ClientResponse> {
 
     private final ExecutorService executor;
 
 
     public JerseyWritableResource(
             final UniformInterface resource,
-            final Class<? extends RESPONSE> responseClass,
             final ExecutorService executor) {
-        super(resource, responseClass);
+        super(resource);
         this.executor = Preconditions.checkNotNull(executor);
     }
 
     @Override
-    public Observable<HttpResponse<RESPONSE>> write(final Object resourceState) {
+    public Observable<ClientResponse> write(final Object resourceState) {
         Preconditions.checkNotNull(resourceState);
 
-        final Callable<HttpResponse<RESPONSE>> responseProvider = new Callable<HttpResponse<RESPONSE>>() {
+        final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
-            public HttpResponse<RESPONSE> call() {
-                final ClientResponse response = getResource().put(ClientResponse.class, resourceState);
-                final HttpResponse<RESPONSE> safeResponse = HttpResponse.wrapAndClose(response, getResponseClass());
-                return safeResponse;
+            public ClientResponse call() {
+                return getResource().put(ClientResponse.class, resourceState);
             }
         };
-        final Observable.OnSubscribe<HttpResponse<RESPONSE>> subscribeAction = new AsyncObservationFunction<>(
+        final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(
                 responseProvider,
                 this.executor);
-        return Observable.create(subscribeAction);
+        final Observable<ClientResponse> obs = Observable.create(subscribeAction);
+        final Observable<ClientResponse> safeObs = obs.lift(ClientResponseCloser.instance());
+        return safeObs;
     }
 
 }

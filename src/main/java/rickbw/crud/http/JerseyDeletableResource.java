@@ -26,33 +26,33 @@ import rickbw.crud.util.AsyncObservationFunction;
 import rx.Observable;
 
 
-public final class JerseyDeletableResource<RESPONSE>
-extends AbstractJerseyResource<RESPONSE>
-implements DeletableResource<HttpResponse<RESPONSE>> {
+public final class JerseyDeletableResource
+extends AbstractJerseyResource
+implements DeletableResource<ClientResponse> {
 
-    private final Observable.OnSubscribe<HttpResponse<RESPONSE>> subscribeAction;
+    private final Observable.OnSubscribe<ClientResponse> subscribeAction;
 
 
     public JerseyDeletableResource(
             final UniformInterface resource,
-            final Class<? extends RESPONSE> responseClass,
             final ExecutorService executor) {
-        super(resource, responseClass);
+        super(resource);
 
-        final Callable<HttpResponse<RESPONSE>> responseProvider = new Callable<HttpResponse<RESPONSE>>() {
+        final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
-            public HttpResponse<RESPONSE> call() {
+            public ClientResponse call() {
                 final ClientResponse response = resource.delete(ClientResponse.class);
-                final HttpResponse<RESPONSE> safeResponse = HttpResponse.wrapAndClose(response, responseClass);
-                return safeResponse;
+                return response;
             }
         };
         this.subscribeAction = new AsyncObservationFunction<>(responseProvider, executor);
     }
 
     @Override
-    public Observable<HttpResponse<RESPONSE>> delete() {
-        return Observable.create(this.subscribeAction);
+    public Observable<ClientResponse> delete() {
+        final Observable<ClientResponse> obs = Observable.create(this.subscribeAction);
+        final Observable<ClientResponse> safeObs = obs.lift(ClientResponseCloser.instance());
+        return safeObs;
     }
 
 }
