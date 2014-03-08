@@ -24,7 +24,7 @@ import com.sun.jersey.api.client.ClientResponse;
 
 import rickbw.crud.ReadableResourceProvider;
 import rickbw.crud.WritableResourceProvider;
-import rickbw.crud.http.ClientConfiguration;
+import rickbw.crud.http.ClientRequest;
 import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
 import rickbw.crud.util.FluentReadableResourceProvider;
@@ -36,14 +36,10 @@ import rx.functions.Func1;
 
     private final Client restClientBean = new Client();
 
-    private final ClientConfiguration restConfigBean = new ClientConfiguration();
-    {
-        final MediaType protoMediaType = new MediaType("application", "x-protobuf");
-        this.restConfigBean.addMediaType(MediaType.APPLICATION_JSON_TYPE);
-        this.restConfigBean.addMediaType(protoMediaType);
-        this.restConfigBean.setType(protoMediaType);
-        this.restConfigBean.addHeader("X-protobuf-message", User.class.getName());
-    }
+    private final ClientRequest templateRequest = ClientRequest.newBuilder()
+            .acceptedMediaType(MediaType.APPLICATION_JSON_TYPE)
+            .contentType(MediaType.APPLICATION_JSON_TYPE)
+            .build();
 
     private final Func1<Long, URI> urlBuilderBean = new Func1<Long, URI>() {
         @Override
@@ -55,12 +51,12 @@ import rx.functions.Func1;
     private final ReadableResourceProvider<URI, ClientResponse> restGetBean =
             new JerseyReadableResourceProvider(
                     this.restClientBean,
-                    this.restConfigBean);
+                    this.templateRequest);
 
-    private final WritableResourceProvider<URI, Object, ClientResponse> restPutBean =
+    private final WritableResourceProvider<URI, ClientRequest, ClientResponse> restPutBean =
             new JerseyWritableResourceProvider(
                     this.restClientBean,
-                    this.restConfigBean);
+                    this.templateRequest);
 
     /* With different implementations, this could be backed by a Voldemort
      * or some other source. It doesn't have to be a REST service.
@@ -79,11 +75,20 @@ import rx.functions.Func1;
      * or some other source. It doesn't have to be a REST service.
      */
     private final WritableResourceProvider<Long, User, Boolean> adaptedPutBean =
-            FluentWritableResourceProvider.<URI, User, ClientResponse>from(this.restPutBean)
+            FluentWritableResourceProvider.from(this.restPutBean)
                     .map(new Func1<ClientResponse, Boolean>() {
                         @Override
                         public Boolean call(final ClientResponse input) {
                             return input.getStatus() < 300;
+                        }
+                    })
+                    .adaptNewValue(new Func1<User, ClientRequest>() {
+                        @Override
+                        public ClientRequest call(final User user) {
+                            final ClientRequest request = ClientRequest.newBuilder()
+                                    .entity(user)
+                                    .build();
+                            return request;
                         }
                     })
                     .adaptKey(this.urlBuilderBean);

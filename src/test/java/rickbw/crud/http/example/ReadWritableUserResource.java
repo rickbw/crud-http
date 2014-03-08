@@ -55,6 +55,8 @@ implements ReadableResource<User>, WritableResource<User, Boolean> {
         return write(null);
     }
 
+    // TODO: override equals() and hashCode()
+
     public static class Provider
     implements ReadableResourceProvider<Long, User>, WritableResourceProvider<Long, User, Boolean> {
         private final ReadableResourceProvider<? super Long, User> readableDelegate;

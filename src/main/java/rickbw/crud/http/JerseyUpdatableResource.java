@@ -20,7 +20,8 @@ import java.util.concurrent.ExecutorService;
 
 import com.google.common.base.Preconditions;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterface;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
 
 import rickbw.crud.UpdatableResource;
 import rickbw.crud.util.AsyncObservationFunction;
@@ -29,26 +30,30 @@ import rx.Observable;
 
 public final class JerseyUpdatableResource
 extends AbstractJerseyResource
-implements UpdatableResource<Object, ClientResponse> {
+implements UpdatableResource<ClientRequest, ClientResponse> {
 
     private final ExecutorService executor;
 
 
     public JerseyUpdatableResource(
-            final UniformInterface resource,
+            final WebResource resource,
+            final ClientRequest requestTemplate,
             final ExecutorService executor) {
-        super(resource);
+        super(resource, requestTemplate);
         this.executor = Preconditions.checkNotNull(executor);
     }
 
     @Override
-    public Observable<ClientResponse> update(final Object update) {
+    public Observable<ClientResponse> update(final ClientRequest update) {
         Preconditions.checkNotNull(update);
+
+        final WebResource.Builder configuredResourceStep1 = configuredResource();
+        final Builder configuredResourceStep2 = update.updateResource(configuredResourceStep1);
 
         final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
             public ClientResponse call() {
-                return getResource().post(ClientResponse.class, update);
+                return configuredResourceStep2.post(ClientResponse.class, update);
             }
         };
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(

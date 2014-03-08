@@ -16,28 +16,44 @@
 package rickbw.crud.http;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
 
+import com.google.common.base.Preconditions;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterface;
+import com.sun.jersey.api.client.WebResource;
 
 import rickbw.crud.DeletableResourceProvider;
 
 
 public final class JerseyDeletableResourceProvider
-extends AbstractResourceProvider
 implements DeletableResourceProvider<URI, ClientResponse> {
+
+    private final Client restClient;
+    private final ClientRequest requestTemplate;
+    private final ExecutorService executor;
+
 
     public JerseyDeletableResourceProvider(
             final Client restClient,
-            final ClientConfiguration config) {
-        super(restClient, config);
+            final ClientRequest requestTemplate) {
+        this.restClient = Preconditions.checkNotNull(restClient);
+        this.requestTemplate = Preconditions.checkNotNull(requestTemplate);
+        this.executor = restClient.getExecutorService();
     }
 
     @Override
     public JerseyDeletableResource get(final URI uri) {
-        final UniformInterface resource = getResource(uri);
-        return new JerseyDeletableResource(resource, getExecutor());
+        final WebResource resource = this.restClient.resource(uri);
+        return new JerseyDeletableResource(resource, this.requestTemplate, this.executor);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + " [restClient=" + this.restClient
+                + ", requestTemplate=" + this.requestTemplate
+                + ']';
     }
 
 }

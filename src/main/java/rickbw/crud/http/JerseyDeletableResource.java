@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
+import com.sun.jersey.api.client.WebResource;
 
 import rickbw.crud.DeletableResource;
 import rickbw.crud.util.AsyncObservationFunction;
@@ -34,15 +35,15 @@ implements DeletableResource<ClientResponse> {
 
 
     public JerseyDeletableResource(
-            final UniformInterface resource,
+            final WebResource resource,
+            final ClientRequest requestTemplate,
             final ExecutorService executor) {
-        super(resource);
-
+        super(resource, requestTemplate);
+        final UniformInterface configuredResource = configuredResource();
         final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
             public ClientResponse call() {
-                final ClientResponse response = resource.delete(ClientResponse.class);
-                return response;
+                return configuredResource.delete(ClientResponse.class);
             }
         };
         this.subscribeAction = new AsyncObservationFunction<>(responseProvider, executor);

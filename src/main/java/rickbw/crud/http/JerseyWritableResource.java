@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.google.common.base.Preconditions;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterface;
+import com.sun.jersey.api.client.WebResource;
 
 import rickbw.crud.WritableResource;
 import rickbw.crud.util.AsyncObservationFunction;
@@ -29,26 +29,31 @@ import rx.Observable;
 
 public final class JerseyWritableResource
 extends AbstractJerseyResource
-implements WritableResource<Object, ClientResponse> {
+implements WritableResource<ClientRequest, ClientResponse> {
 
     private final ExecutorService executor;
 
 
     public JerseyWritableResource(
-            final UniformInterface resource,
+            final WebResource resource,
+            final ClientRequest requestTemplate,
             final ExecutorService executor) {
-        super(resource);
+        super(resource, requestTemplate);
         this.executor = Preconditions.checkNotNull(executor);
     }
 
     @Override
-    public Observable<ClientResponse> write(final Object resourceState) {
+    public Observable<ClientResponse> write(final ClientRequest resourceState) {
         Preconditions.checkNotNull(resourceState);
+
+        final WebResource.Builder configuredResourceStep1 = configuredResource();
+        final WebResource.Builder configuredResourceStep2 = resourceState.updateResource(
+                configuredResourceStep1);
 
         final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
             public ClientResponse call() {
-                return getResource().put(ClientResponse.class, resourceState);
+                return configuredResourceStep2.put(ClientResponse.class, resourceState);
             }
         };
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(
