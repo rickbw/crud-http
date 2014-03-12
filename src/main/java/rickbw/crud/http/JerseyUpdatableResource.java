@@ -53,7 +53,8 @@ implements UpdatableResource<ClientRequest, ClientResponse> {
         final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
             public ClientResponse call() {
-                return configuredResourceStep2.post(ClientResponse.class, update);
+                // Don't pass update to put(): already in configuredResourceStep2
+                return configuredResourceStep2.post(ClientResponse.class);
             }
         };
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(

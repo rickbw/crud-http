@@ -53,7 +53,8 @@ implements WritableResource<ClientRequest, ClientResponse> {
         final Callable<ClientResponse> responseProvider = new Callable<ClientResponse>() {
             @Override
             public ClientResponse call() {
-                return configuredResourceStep2.put(ClientResponse.class, resourceState);
+                // Don't pass resourceState to put(): already in configuredResourceStep2
+                return configuredResourceStep2.put(ClientResponse.class);
             }
         };
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(
