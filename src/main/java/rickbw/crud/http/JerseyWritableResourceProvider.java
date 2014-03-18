@@ -40,6 +40,7 @@ implements WritableResourceProvider<URI, ClientRequest, ClientResponse> {
         this.restClient = Preconditions.checkNotNull(restClient);
         this.requestTemplate = Preconditions.checkNotNull(requestTemplate);
         this.executor = restClient.getExecutorService();
+        assert this.executor != null;
     }
 
     @Override

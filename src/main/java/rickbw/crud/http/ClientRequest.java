@@ -120,14 +120,49 @@ public final class ClientRequest {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()
-                + " [entityBody=" + this.entityBody
-                + ", contentType=" + this.contentType
-                + ", acceptedTypes=" + this.acceptedTypes
-                + ", acceptedLanguages=" + this.acceptedLanguages
-                + ", cookies=" + this.cookies
-                + ", headers=" + this.headers
-                + ']';
+        final StringBuilder buf = new StringBuilder(getClass().getSimpleName());
+        buf.append('[');
+        boolean previousField = false;
+        if (this.entityBody.isPresent()) {
+            buf.append("entityBody=").append(this.entityBody.get());
+            previousField = true;
+        }
+        if (this.contentType.isPresent()) {
+            if (previousField) {
+                buf.append(", ");
+            }
+            buf.append("contentType=").append(this.contentType.get());
+            previousField = true;
+        }
+        if (!this.acceptedTypes.isEmpty()) {
+            if (previousField) {
+                buf.append(", ");
+            }
+            buf.append("acceptedTypes=").append(this.acceptedTypes);
+            previousField = true;
+        }
+        if (!this.acceptedLanguages.isEmpty()) {
+            if (previousField) {
+                buf.append(", ");
+            }
+            buf.append("acceptedLanguages=").append(this.acceptedLanguages);
+            previousField = true;
+        }
+        if (!this.cookies.isEmpty()) {
+            if (previousField) {
+                buf.append(", ");
+            }
+            buf.append("cookies=").append(this.cookies);
+            previousField = true;
+        }
+        if (!this.headers.isEmpty()) {
+            if (previousField) {
+                buf.append(", ");
+            }
+            buf.append("headers=").append(this.headers);
+        }
+        buf.append(']');
+        return buf.toString();
     }
 
     @Override
