@@ -60,9 +60,9 @@ implements UpdatableResource<ClientRequest, ClientResponse> {
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(
                 responseProvider,
                 this.executor);
-        final Observable<ClientResponse> obs = Observable.create(subscribeAction);
-        final Observable<ClientResponse> safeObs = obs.lift(ClientResponseCloser.instance());
-        return safeObs;
+        final Observable<ClientResponse> obs = Observable.create(subscribeAction)
+                .lift(ClientResponseCloser.instance());
+        return obs;
     }
 
 }

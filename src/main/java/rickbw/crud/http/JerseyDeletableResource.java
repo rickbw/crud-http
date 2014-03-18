@@ -51,9 +51,9 @@ implements DeletableResource<ClientResponse> {
 
     @Override
     public Observable<ClientResponse> delete() {
-        final Observable<ClientResponse> obs = Observable.create(this.subscribeAction);
-        final Observable<ClientResponse> safeObs = obs.lift(ClientResponseCloser.instance());
-        return safeObs;
+        final Observable<ClientResponse> obs = Observable.create(this.subscribeAction)
+                .lift(ClientResponseCloser.instance());
+        return obs;
     }
 
 }
