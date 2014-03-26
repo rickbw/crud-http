@@ -45,8 +45,6 @@ implements UpdatableResource<ClientRequest, ClientResponse> {
 
     @Override
     public Observable<ClientResponse> update(final ClientRequest update) {
-        Preconditions.checkNotNull(update);
-
         final WebResource.Builder configuredResourceStep1 = configuredResource();
         final Builder configuredResourceStep2 = update.updateResource(configuredResourceStep1);
 

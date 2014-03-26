@@ -40,6 +40,8 @@ import rickbw.crud.ResourceProvider;
  */
 public final class ClientRequest {
 
+    private static final ClientRequest emptyRequest = newBuilder().build();
+
     private final Optional<Object> entityBody;
     private final Optional<MediaType> contentType;
     private final ImmutableSet<MediaType> acceptedTypes;
@@ -50,6 +52,21 @@ public final class ClientRequest {
 
     public static Builder newBuilder() {
         return new Builder();
+    }
+
+    /**
+     * @throws NullPointerException If the given source is null.
+     */
+    public static Builder newBuilder(final ClientRequest source) {
+        return new Builder(source);
+    }
+
+    /**
+     * @return  A new request object with empty contents, as by calling
+     *          {@link #newBuilder()} followed by {@link Builder#build()}.
+     */
+    public static ClientRequest empty() {
+        return emptyRequest;
     }
 
     /**
@@ -226,12 +243,12 @@ public final class ClientRequest {
 
 
     public static final class Builder {
-        private Optional<Object> entityBody = Optional.absent();
-        private Optional<MediaType> contentType = Optional.absent();
-        private final Set<MediaType> acceptedTypes = Sets.newHashSet();
-        private final Set<Locale> acceptedLanguages = Sets.newHashSet();
-        private final Set<Cookie> cookies = Sets.newHashSet();
-        private final Map<String, Object> headers = Maps.newHashMap();
+        private Optional<Object> entityBody;
+        private Optional<MediaType> contentType;
+        private final Set<MediaType> acceptedTypes;
+        private final Set<Locale> acceptedLanguages;
+        private final Set<Cookie> cookies;
+        private final Map<String, Object> headers;
 
         /**
          * Set the entity body for the request. It must agree with the
@@ -340,7 +357,24 @@ public final class ClientRequest {
         }
 
         private Builder() {
-            // prevent instantiation
+            this.entityBody = Optional.absent();
+            this.contentType = Optional.absent();
+            this.acceptedTypes = Sets.newHashSet();
+            this.acceptedLanguages = Sets.newHashSet();
+            this.cookies = Sets.newHashSet();
+            this.headers = Maps.newHashMap();
+        }
+
+        /**
+         * @throws NullPointerException If the given source is null.
+         */
+        private Builder(final ClientRequest source) {
+            this.entityBody = source.entityBody;
+            this.contentType = source.contentType;
+            this.acceptedTypes = Sets.newHashSet(source.acceptedTypes);
+            this.acceptedLanguages = Sets.newHashSet(source.acceptedLanguages);
+            this.cookies = Sets.newHashSet(source.cookies);
+            this.headers = Maps.newHashMap(source.headers);
         }
     }
 

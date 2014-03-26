@@ -44,8 +44,6 @@ implements WritableResource<ClientRequest, ClientResponse> {
 
     @Override
     public Observable<ClientResponse> write(final ClientRequest resourceState) {
-        Preconditions.checkNotNull(resourceState);
-
         final WebResource.Builder configuredResourceStep1 = configuredResource();
         final WebResource.Builder configuredResourceStep2 = resourceState.updateResource(
                 configuredResourceStep1);
