@@ -12,10 +12,31 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package rickbw.crud.http.example;
 
+import java.util.UUID;
 
-/*package*/ class User {
-    // empty
+
+/**
+ * An example of an application-specific data type.
+ */
+class Asset {
+
+    private final UUID id;
+    private final long answerToLifeTheUniverseAndEverything;
+
+
+    public Asset(final UUID id, final long answerToLifeTheUniverseAndEverything) {
+        this.id = id;
+        this.answerToLifeTheUniverseAndEverything = answerToLifeTheUniverseAndEverything;
+    }
+
+    public UUID getAssetId() {
+        return this.id;
+    }
+
+    public long getTheAnswerToLifeTheUniverseAndEverything() {
+        return this.answerToLifeTheUniverseAndEverything;
+    }
+
 }

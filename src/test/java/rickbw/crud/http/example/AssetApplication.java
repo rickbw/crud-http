@@ -12,35 +12,33 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package rickbw.crud.http.example;
 
-import com.google.common.base.Preconditions;
+import java.util.UUID;
 
-import rickbw.crud.ReadableResource;
-import rickbw.crud.ReadableResourceProvider;
 import rx.Observer;
 
 
 /**
- * Example of an application that uses the User Service.
+ * An example of trivial business logic that deals with {@link Asset}s.
  */
-/*package*/ class UserServiceApplication {
+class AssetApplication {
 
-    private final ReadableResourceProvider<Long, User> userService;
+    private final AssetResourceProvider assetProvider;
 
 
-    public UserServiceApplication(
-            final ReadableResourceProvider<Long, User> isThisARestServiceIDontCare) {
-        this.userService = Preconditions.checkNotNull(isThisARestServiceIDontCare);
+    public AssetApplication(final AssetResourceProvider isThisAWebServiceIDontCare) {
+        this.assetProvider = isThisAWebServiceIDontCare;
     }
 
-    public void processUser(final long userId) {
-        final ReadableResource<User> resource = this.userService.get(userId);
-        resource.get().subscribe(new Observer<User>() {
+    public void processAsset(final UUID assetId) {
+        final AssetResource resource = this.assetProvider.get(assetId);
+        resource.get().subscribe(new Observer<Asset>() {
             @Override
-            public void onNext(final User user) {
-                System.out.println("Got user: " + user);
+            public void onNext(final Asset asset) {
+                System.out.println("Got the asset " + assetId);
+                final Asset betterAsset = new Asset(assetId, 42L);
+                resource.write(betterAsset).subscribe();
             }
 
             @Override
@@ -50,7 +48,7 @@ import rx.Observer;
 
             @Override
             public void onError(final Throwable ex) {
-                System.err.println("Failed to get user.");
+                System.err.println("Failed to get the asset.");
             }
         });
     }
