@@ -9,8 +9,8 @@ import com.google.common.collect.Range;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
-import rickbw.crud.util.FluentReadableResource;
-import rickbw.crud.util.FluentReadableResourceProvider;
+import rickbw.crud.fluent.FluentReadableResource;
+import rickbw.crud.fluent.FluentReadableResourceProvider;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;

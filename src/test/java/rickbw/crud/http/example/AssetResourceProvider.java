@@ -22,10 +22,10 @@ import rickbw.crud.Resource;
 import rickbw.crud.ResourceProvider;
 import rickbw.crud.WritableResource;
 import rickbw.crud.WritableResourceProvider;
+import rickbw.crud.fluent.FluentReadableResourceProvider;
+import rickbw.crud.fluent.FluentWritableResourceProvider;
 import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
-import rickbw.crud.util.FluentReadableResourceProvider;
-import rickbw.crud.util.FluentWritableResourceProvider;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -64,12 +64,12 @@ implements ReadableResourceProvider<UUID, Asset>, WritableResourceProvider<UUID,
         final FluentReadableResourceProvider<UUID, Asset> reader
                 = FluentReadableResourceProvider.from(readDelegate)
                     .adaptKey(keyAdapter)
-                    .map(assetReadMapper);
+                    .mapValue(assetReadMapper);
         final FluentWritableResourceProvider<UUID, Asset, Boolean> writer
                 = FluentWritableResourceProvider.from(writeDelegate)
                     .adaptKey(keyAdapter)
                     .adaptNewValue(assetWriteMapper)
-                    .map(responseMapper);
+                    .mapResponse(responseMapper);
         return new AssetResourceProvider(reader, writer);
     }
 

@@ -26,12 +26,12 @@ import com.sun.jersey.api.client.ClientResponse;
 import rickbw.crud.ReadableResourceProvider;
 import rickbw.crud.ResourceProvider;
 import rickbw.crud.WritableResourceProvider;
+import rickbw.crud.fluent.FluentReadableResourceProvider;
+import rickbw.crud.fluent.FluentWritableResourceProvider;
 import rickbw.crud.http.ClientRequest;
 import rickbw.crud.http.JerseyReadableResourceProvider;
 import rickbw.crud.http.JerseyWritableResourceProvider;
 import rickbw.crud.http.util.FailedResponseOperator;
-import rickbw.crud.util.FluentReadableResourceProvider;
-import rickbw.crud.util.FluentWritableResourceProvider;
 import rx.functions.Func1;
 
 

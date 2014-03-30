@@ -18,6 +18,7 @@ See Also
 * `crud-api` is built on top of [RxJava](https://github.com/Netflix/RxJava/).
 * The Crud HTTP implementation is based on [Jersey](https://jersey.java.net), a widely used REST toolkit, and the reference implementation of JAX-RS.
 * [Crud JDBC](https://github.com/rickbw/crud-jdbc) (`crud-jdbc`) is a sister project to this project, implemented for JDBC instead of HTTP.
+* [Crud Voldemort](https://github.com/rickbw/crud-voldemort) (`crud-voldemort`) is a sister project to this project, implemented for [Project Voldemort](http://www.project-voldemort.com) instead of HTTP.
 
 
 Copyright and License
