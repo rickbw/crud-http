@@ -63,9 +63,18 @@ the License.
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <!-- TODO: Update to Jersey 2.x -->
         <jersey-version>1.18</jersey-version>
         <crud-api.version>0.2-SNAPSHOT</crud-api.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <!-- Preferred Jersey repository -->
+            <id>Java.net</id>
+            <url>https://maven.java.net/content/repositories/releases</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
