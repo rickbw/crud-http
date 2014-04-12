@@ -17,9 +17,9 @@ package rickbw.crud.http;
 import java.net.URI;
 
 import com.google.common.base.Preconditions;
+import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import rickbw.crud.DeletableResourceProvider;
 import rickbw.crud.ReadableResourceProvider;
@@ -72,15 +72,8 @@ implements ReadableResourceProvider<URI, ClientResponse>,
 
     @Override
     public HttpResource get(final URI uri) {
-        final WebResource resource = this.restClient.resource(uri);
-        /* Pass just the WebResource and the ExecutorService, since that's all
-         * the HttpResource needs. No reason to expose e.g. the ability to
-         * look up additional resources.
-         */
-        return new HttpResource(
-                resource,
-                this.requestTemplate,
-                this.restClient.getExecutorService());
+        final AsyncWebResource resource = this.restClient.asyncResource(uri);
+        return new HttpResource(resource, this.requestTemplate);
     }
 
     @Override

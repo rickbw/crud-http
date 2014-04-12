@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.PartialRequestBuilder;
 
 import rickbw.crud.ResourceProvider;
 
@@ -199,7 +199,7 @@ public final class ClientRequest {
      * Update the given resource request with the contents of this request
      * and return it back again.
      */
-    /*package*/ void updateResource(final WebResource.Builder resource) {
+    /*package*/ void updateResource(final PartialRequestBuilder<?> resource) {
         if (!this.acceptedTypes.isEmpty()) {
             final MediaType[] typesArray = this.acceptedTypes.toArray(
                     new MediaType[this.acceptedTypes.size()]);

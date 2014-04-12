@@ -14,20 +14,20 @@
  */
 package rickbw.crud.http;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import com.google.common.base.Preconditions;
+import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import rickbw.crud.DeletableResource;
 import rickbw.crud.ReadableResource;
 import rickbw.crud.Resource;
 import rickbw.crud.UpdatableResource;
 import rickbw.crud.WritableResource;
-import rickbw.crud.util.AsyncObservationFunction;
 import rx.Observable;
+import rx.Subscriber;
+import rx.subscriptions.Subscriptions;
 
 
 /**
@@ -40,9 +40,8 @@ implements ReadableResource<ClientResponse>,
            WritableResource<ClientRequest, ClientResponse>,
            UpdatableResource<ClientRequest, ClientResponse> {
 
-    private final WebResource resource;
+    private final AsyncWebResource resource;
     private final ClientRequest requestTemplate;
-    private final ExecutorService executor;
 
     private final Observable.OnSubscribe<ClientResponse> cachedOnGetAction;
     private final Observable.OnSubscribe<ClientResponse> cachedOnDeleteAction;
@@ -64,18 +63,17 @@ implements ReadableResource<ClientResponse>,
 
     @Override
     public Observable<ClientResponse> write(final ClientRequest resourceState) {
-        final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(
-                new Callable<ClientResponse>() {
-                    @Override
-                    public ClientResponse call() {
-                        final WebResource.Builder requestBuilder = resource.getRequestBuilder();
-                        requestTemplate.updateResource(requestBuilder);
-                        resourceState.updateResource(requestBuilder);
-                        // Don't pass resourceState to put(): already in requestBuilder
-                        return requestBuilder.put(ClientResponse.class);
-                    }
-                },
-                this.executor);
+        final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
+            @Override
+            public void call(final Subscriber<? super ClientResponse> subscriber) {
+                final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
+                HttpResource.this.requestTemplate.updateResource(request);
+                resourceState.updateResource(request);
+                // Don't pass resourceState to put(): already in request
+                final Future<ClientResponse> response = request.put(ResponseListener.adapt(subscriber));
+                subscriber.add(Subscriptions.from(response));
+            }
+        };
         final Observable<ClientResponse> obs = Observable.create(subscribeAction)
                 .lift(ClientResponseCloser.instance());
         return obs;
@@ -83,18 +81,17 @@ implements ReadableResource<ClientResponse>,
 
     @Override
     public Observable<ClientResponse> update(final ClientRequest update) {
-        final Observable.OnSubscribe<ClientResponse> subscribeAction = new AsyncObservationFunction<>(
-                new Callable<ClientResponse>() {
-                    @Override
-                    public ClientResponse call() {
-                        final WebResource.Builder requestBuilder = resource.getRequestBuilder();
-                        requestTemplate.updateResource(requestBuilder);
-                        update.updateResource(requestBuilder);
-                        // Don't pass resourceState to put(): already in requestBuilder
-                        return requestBuilder.post(ClientResponse.class);
-                    }
-                },
-                this.executor);
+        final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
+            @Override
+            public void call(final Subscriber<? super ClientResponse> subscriber) {
+                final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
+                HttpResource.this.requestTemplate.updateResource(request);
+                update.updateResource(request);
+                // Don't pass resourceState to post(): already in request
+                final Future<ClientResponse> response = request.post(ResponseListener.adapt(subscriber));
+                subscriber.add(Subscriptions.from(response));
+            }
+        };
         final Observable<ClientResponse> obs = Observable.create(subscribeAction)
                 .lift(ClientResponseCloser.instance());
         return obs;
@@ -126,7 +123,6 @@ implements ReadableResource<ClientResponse>,
         if (!this.requestTemplate.equals(other.requestTemplate)) {
             return false;
         }
-        // Don't check Executor: doesn't impact resource state
         return true;
     }
 
@@ -136,38 +132,33 @@ implements ReadableResource<ClientResponse>,
         int result = 1;
         result = prime * result + this.resource.hashCode();
         result = prime * result + this.requestTemplate.hashCode();
-        // Don't check Executor: doesn't impact resource state
         return result;
     }
 
     /*package*/ HttpResource(
-            final WebResource resource,
-            final ClientRequest requestTemplate,
-            final ExecutorService executor) {
+            final AsyncWebResource resource,
+            final ClientRequest requestTemplate) {
         this.resource = Preconditions.checkNotNull(resource);
         this.requestTemplate = Preconditions.checkNotNull(requestTemplate);
-        this.executor = Preconditions.checkNotNull(executor);
 
-        this.cachedOnGetAction = new AsyncObservationFunction<>(
-                new Callable<ClientResponse>() {
-                    @Override
-                    public ClientResponse call() {
-                        final WebResource.Builder requestBuilder = resource.getRequestBuilder();
-                        requestTemplate.updateResource(requestBuilder);
-                        return requestBuilder.get(ClientResponse.class);
-                    }
-                },
-                executor);
-        this.cachedOnDeleteAction = new AsyncObservationFunction<>(
-                new Callable<ClientResponse>() {
-                    @Override
-                    public ClientResponse call() {
-                        final WebResource.Builder requestBuilder = resource.getRequestBuilder();
-                        requestTemplate.updateResource(requestBuilder);
-                        return requestBuilder.delete(ClientResponse.class);
-                    }
-                },
-                executor);
+        this.cachedOnGetAction = new Observable.OnSubscribe<ClientResponse>() {
+            @Override
+            public void call(final Subscriber<? super ClientResponse> subscriber) {
+                final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
+                HttpResource.this.requestTemplate.updateResource(request);
+                final Future<ClientResponse> response = request.get(ResponseListener.adapt(subscriber));
+                subscriber.add(Subscriptions.from(response));
+            }
+        };
+        this.cachedOnDeleteAction = new Observable.OnSubscribe<ClientResponse>() {
+            @Override
+            public void call(final Subscriber<? super ClientResponse> subscriber) {
+                final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
+                HttpResource.this.requestTemplate.updateResource(request);
+                final Future<ClientResponse> response = request.delete(ResponseListener.adapt(subscriber));
+                subscriber.add(Subscriptions.from(response));
+            }
+        };
     }
 
 }
