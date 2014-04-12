@@ -24,8 +24,6 @@ import rickbw.crud.WritableResource;
 import rickbw.crud.WritableResourceProvider;
 import rickbw.crud.fluent.FluentReadableResourceProvider;
 import rickbw.crud.fluent.FluentWritableResourceProvider;
-import rickbw.crud.http.JerseyReadableResourceProvider;
-import rickbw.crud.http.JerseyWritableResourceProvider;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -44,10 +42,10 @@ implements ReadableResourceProvider<UUID, Asset>, WritableResourceProvider<UUID,
     /**
      * Wrap a pair of {@link ResourceProvider}s with a new
      * AssetResourceProvider. These input providers might be, for example, a
-     * {@link JerseyReadableResourceProvider} and a
-     * {@link JerseyWritableResourceProvider}, if the Assets are to be backed
-     * be a web service. However, any backing providers will do, provided
-     * there is some way to transform their inputs and outputs appropriately.
+     * {@link rickbw.crud.http.HttpResourceProvider}, if the Assets are to
+     * be backed by a web service. However, any backing providers will do,
+     * provided there is some way to transform their inputs and outputs
+     * appropriately.
      *
      * @param <K>   The type of the keys of the input providers.
      * @param <RV>  The type of the values read from the read delegate.

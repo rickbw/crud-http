@@ -23,14 +23,11 @@ import javax.ws.rs.core.Response;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import rickbw.crud.ReadableResourceProvider;
 import rickbw.crud.ResourceProvider;
-import rickbw.crud.WritableResourceProvider;
 import rickbw.crud.fluent.FluentReadableResourceProvider;
 import rickbw.crud.fluent.FluentWritableResourceProvider;
 import rickbw.crud.http.ClientRequest;
-import rickbw.crud.http.JerseyReadableResourceProvider;
-import rickbw.crud.http.JerseyWritableResourceProvider;
+import rickbw.crud.http.HttpResourceProvider;
 import rickbw.crud.http.util.FailedResponseOperator;
 import rx.functions.Func1;
 
@@ -64,22 +61,12 @@ class ExampleApplicationContext {
             .build();
 
     /**
-     * A provider of resources that can read JSON-encoded {@link Asset}s
-     * from the web service.
+     * A provider of resources that can read and write JSON-encoded
+     * {@link Asset}s from the web service.
      */
-    private final ReadableResourceProvider<URI, ClientResponse> restGetter
-            = new JerseyReadableResourceProvider(
-                this.restClient,
-                this.templateRequest);
-
-    /**
-     * A provider of resources that can write JSON-encoded {@link Asset}s
-     * to the web service.
-     */
-    private final WritableResourceProvider<URI, ClientRequest, ClientResponse> restPutter
-            = new JerseyWritableResourceProvider(
-                this.restClient,
-                this.templateRequest);
+    private final HttpResourceProvider restResource = HttpResourceProvider.forClientWithTemplate(
+            this.restClient,
+            this.templateRequest);
 
     /**
      * Provides the {@link URI} at which an {@link Asset} of a given ID can
@@ -123,7 +110,7 @@ class ExampleApplicationContext {
     private final Func1<ClientResponse, Boolean> assetPutSuccessDecoder = new Func1<ClientResponse, Boolean>() {
         @Override
         public Boolean call(final ClientResponse input) {
-            return input.getClientResponseStatus().getFamily() == Response.Status.Family.SUCCESSFUL;
+            return input.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL;
         }
     };
 
@@ -138,9 +125,9 @@ class ExampleApplicationContext {
      */
     public final AssetResourceProvider assetProvider = AssetResourceProvider.create(
             // Retry all server errors on GET up to 3 times:
-            FluentReadableResourceProvider.from(restGetter).lift(FailedResponseOperator.serverErrors()).retry(3),
+            FluentReadableResourceProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
             // Retry all server errors on PUT up to 3 times:
-            FluentWritableResourceProvider.from(restPutter).lift(FailedResponseOperator.serverErrors()).retry(3),
+            FluentWritableResourceProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
             urlBuilder,
             assetDecoder,
             assetEncoder,

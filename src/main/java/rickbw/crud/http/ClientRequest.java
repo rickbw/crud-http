@@ -199,29 +199,28 @@ public final class ClientRequest {
      * Update the given resource request with the contents of this request
      * and return it back again.
      */
-    /*package*/ WebResource.Builder updateResource(WebResource.Builder resource) {
+    /*package*/ void updateResource(final WebResource.Builder resource) {
         if (!this.acceptedTypes.isEmpty()) {
             final MediaType[] typesArray = this.acceptedTypes.toArray(
                     new MediaType[this.acceptedTypes.size()]);
-            resource = resource.accept(typesArray);
+            resource.accept(typesArray);
         }
         if (!this.acceptedLanguages.isEmpty()) {
             final Locale[] languageArray = new Locale[this.acceptedLanguages.size()];
-            resource = resource.acceptLanguage(languageArray);
+            resource.acceptLanguage(languageArray);
         }
         if (this.contentType.isPresent()) {
-            resource = resource.type(this.contentType.get());
+            resource.type(this.contentType.get());
         }
         for (final Cookie cookie : this.cookies) {
-            resource = resource.cookie(cookie);
+            resource.cookie(cookie);
         }
         for (final Map.Entry<String, Object> entry : this.headers.entrySet()) {
-            resource = resource.header(entry.getKey(), entry.getValue());
+            resource.header(entry.getKey(), entry.getValue());
         }
         if (this.entityBody.isPresent()) {
-            resource = resource.entity(this.entityBody.get());
+            resource.entity(this.entityBody.get());
         }
-        return resource;
     }
 
     private ClientRequest(
