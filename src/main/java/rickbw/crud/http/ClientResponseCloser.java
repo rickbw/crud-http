@@ -32,6 +32,7 @@ implements Observable.Operator<ClientResponse, ClientResponse> {
         private volatile ClientResponse latestResponse = null;
 
         public ClosingSubscriber(final Subscriber<? super ClientResponse> delegate) {
+            super(delegate);
             this.delegate = delegate;
             assert this.delegate != null;
         }
@@ -39,12 +40,12 @@ implements Observable.Operator<ClientResponse, ClientResponse> {
         @Override
         public void onNext(final ClientResponse response) {
             assert this.latestResponse == null; // only one response per request
-            this.delegate.onNext(response);
-            /* If onNext() returns successfully, save the response object for
-             * now, so the delegate can keep using it if it needs to. Then
-             * close it when the delegate is all finished.
+            /* Save the response object for now, so the delegate can keep
+             * using it if it needs to. Then close it when the delegate is all
+             * finished.
              */
             this.latestResponse = response;
+            this.delegate.onNext(response);
         }
 
         @Override

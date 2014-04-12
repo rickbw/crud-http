@@ -99,7 +99,8 @@ implements Observable.Operator<ClientResponse, ClientResponse> {
         private final Subscriber<? super ClientResponse> delegate;
         private volatile boolean errorOccurred = false;
 
-        private ErrorResponseSubscriber(final Subscriber<? super ClientResponse> delegate) {
+        public ErrorResponseSubscriber(final Subscriber<? super ClientResponse> delegate) {
+            super(delegate);
             this.delegate = delegate;
         }
 
