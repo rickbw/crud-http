@@ -15,8 +15,8 @@
 package rickbw.crud.http;
 
 import java.net.URI;
+import java.util.Objects;
 
-import com.google.common.base.Preconditions;
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -87,8 +87,8 @@ implements ReadableResourceProvider<URI, ClientResponse>,
     private HttpResourceProvider(
             final Client restClient,
             final ClientRequest requestTemplate) {
-        this.restClient = Preconditions.checkNotNull(restClient);
-        this.requestTemplate = Preconditions.checkNotNull(requestTemplate);
+        this.restClient = Objects.requireNonNull(restClient);
+        this.requestTemplate = Objects.requireNonNull(requestTemplate);
     }
 
 }

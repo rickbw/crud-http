@@ -18,13 +18,13 @@ package rickbw.crud.http;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -286,7 +286,7 @@ public final class ClientRequest {
          * to indicate those types that will be acceptable in the response.
          */
         public Builder acceptedMediaType(final MediaType newType) {
-            this.acceptedTypes.add(Preconditions.checkNotNull(newType));
+            this.acceptedTypes.add(Objects.requireNonNull(newType));
             return this;
         }
 
@@ -306,7 +306,7 @@ public final class ClientRequest {
          * response.
          */
         public Builder acceptedLanguage(final Locale language) {
-            this.acceptedLanguages.add(Preconditions.checkNotNull(language));
+            this.acceptedLanguages.add(Objects.requireNonNull(language));
             return this;
         }
 
@@ -322,7 +322,7 @@ public final class ClientRequest {
         }
 
         public Builder cookie(final Cookie cookie) {
-            this.cookies.add(Preconditions.checkNotNull(cookie));
+            this.cookies.add(Objects.requireNonNull(cookie));
             return this;
         }
 
@@ -333,8 +333,8 @@ public final class ClientRequest {
         }
 
         public Builder header(final String name, final Object value) {
-            Preconditions.checkNotNull(name);
-            Preconditions.checkNotNull(value);
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(value);
             this.headers.put(name, value);
             return this;
         }

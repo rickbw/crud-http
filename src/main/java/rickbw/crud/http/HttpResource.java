@@ -14,9 +14,9 @@
  */
 package rickbw.crud.http;
 
+import java.util.Objects;
 import java.util.concurrent.Future;
 
-import com.google.common.base.Preconditions;
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.ClientResponse;
 
@@ -138,8 +138,8 @@ implements ReadableResource<ClientResponse>,
     /*package*/ HttpResource(
             final AsyncWebResource resource,
             final ClientRequest requestTemplate) {
-        this.resource = Preconditions.checkNotNull(resource);
-        this.requestTemplate = Preconditions.checkNotNull(requestTemplate);
+        this.resource = Objects.requireNonNull(resource);
+        this.requestTemplate = Objects.requireNonNull(requestTemplate);
 
         this.cachedOnGetAction = new Observable.OnSubscribe<ClientResponse>() {
             @Override
