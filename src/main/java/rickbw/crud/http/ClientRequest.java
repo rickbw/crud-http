@@ -207,7 +207,7 @@ public final class ClientRequest {
         }
         if (!this.acceptedLanguages.isEmpty()) {
             final Locale[] languageArray = new Locale[this.acceptedLanguages.size()];
-            resource.acceptLanguage(languageArray);
+            resource.acceptLanguage(this.acceptedLanguages.toArray(languageArray));
         }
         if (this.contentType.isPresent()) {
             resource.type(this.contentType.get());
