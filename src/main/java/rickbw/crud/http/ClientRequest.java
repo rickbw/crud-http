@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -38,7 +39,7 @@ import rickbw.crud.ResourceProvider;
  * A container for the state used to initialize HTTP
  * {@link ResourceProvider}s.
  */
-public final class ClientRequest {
+public class ClientRequest {
 
     private static final ClientRequest emptyRequest = newBuilder().build();
 
@@ -223,7 +224,8 @@ public final class ClientRequest {
         }
     }
 
-    private ClientRequest(
+    @VisibleForTesting
+    /*package*/ ClientRequest(
             final Optional<Object> entityBody,
             final Optional<MediaType> contentType,
             final Iterable<MediaType> acceptedTypes,

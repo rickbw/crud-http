@@ -147,6 +147,7 @@ implements ReadableResource<ClientResponse>,
                 final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
                 HttpResource.this.requestTemplate.updateResource(request);
                 final Future<ClientResponse> response = request.get(ResponseListener.adapt(subscriber));
+                assert response != null;
                 subscriber.add(Subscriptions.from(response));
             }
         };
@@ -156,6 +157,7 @@ implements ReadableResource<ClientResponse>,
                 final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
                 HttpResource.this.requestTemplate.updateResource(request);
                 final Future<ClientResponse> response = request.delete(ResponseListener.adapt(subscriber));
+                assert response != null;
                 subscriber.add(Subscriptions.from(response));
             }
         };
