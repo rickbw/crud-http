@@ -33,7 +33,15 @@ import com.sun.jersey.api.client.async.ITypeListener;
 
 
     public ListenerInvokingAnswer(final ClientResponse response) {
-        this.mockFuture = Futures.immediateFuture(response);
+        this(Futures.immediateFuture(response));
+    }
+
+    public ListenerInvokingAnswer(final Throwable ex) {
+        this(Futures.<ClientResponse>immediateFailedFuture(ex));
+    }
+
+    private ListenerInvokingAnswer(final ListenableFuture<ClientResponse> future) {
+        this.mockFuture = future;
     }
 
     @Override

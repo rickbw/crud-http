@@ -69,6 +69,11 @@ implements Observable.Operator<ClientResponse, ClientResponse> {
         private void closeLatestResponse() {
             if (this.latestResponse != null) {
                 this.latestResponse.close();
+                /* If onCompleted() itself throws, onError() can still be
+                 * called. That could result in duplicate calls to close().
+                 * Clear the state so that won't happen.
+                 */
+                this.latestResponse = null;
             }
         }
     }

@@ -14,12 +14,23 @@
  */
 package rickbw.crud.http;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static rickbw.crud.RxAssertions.subscribeAndWait;
+import static rickbw.crud.RxAssertions.subscribeWithOnCompletedAndOnErrorFailures;
+import static rickbw.crud.RxAssertions.subscribeWithOnCompletedFailure;
+import static rickbw.crud.RxAssertions.subscribeWithOnNextAndOnErrorFailures;
+import static rickbw.crud.RxAssertions.subscribeWithOnNextFailure;
 
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +42,7 @@ import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
 import rickbw.crud.WritableResourceTest;
+import rx.Observer;
 
 
 public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest, ClientResponse> {
@@ -82,6 +94,140 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         verify(mockRequest).updateResource(this.mockResourceBuilder);
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void httpPutErrorCallsOnError() throws InterruptedException {
+        // given:
+        final RuntimeException expectedException = new IllegalStateException("mock failure");
+        final HttpResource resource = createDefaultResource();
+        final ClientRequest newState = createDefaultResourceState();
+
+        final AtomicBoolean failed = new AtomicBoolean();
+
+        reset(this.mockResourceBuilder);
+
+        // when:
+        when(this.mockResourceBuilder.put(any(ITypeListener.class))).thenThrow(expectedException);
+        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
+            @Override
+            public void onNext(final ClientResponse response) {
+                failed.set(true);
+            }
+
+            @Override
+            public void onCompleted() {
+                failed.set(true);
+            }
+
+            @Override
+            public void onError(final Throwable e) {
+                failed.set(!e.equals(expectedException));
+            }
+        });
+
+        // then:
+        assertFalse(failed.get());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void futureGetErrorCallsOnError() throws InterruptedException {
+        // given:
+        final RuntimeException expectedException = new IllegalStateException("mock exception");
+        final HttpResource resource = createDefaultResource();
+        final ClientRequest newState = createDefaultResourceState();
+
+        final AtomicReference<String> failure = new AtomicReference<>("");
+
+        reset(this.mockResourceBuilder);
+
+        // when:
+        when(this.mockResourceBuilder.put(any(ITypeListener.class)))
+            .thenAnswer(new ListenerInvokingAnswer(expectedException));
+        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
+            @Override
+            public void onNext(final ClientResponse response) {
+                failure.set("onNext called");
+            }
+
+            @Override
+            public void onCompleted() {
+                failure.set("onCompleted called");
+            }
+
+            @Override
+            public void onError(final Throwable e) {
+                // Check cause, because it got wrapped in ExecutionException.
+                if (!expectedException.equals(e.getCause())) {
+                    failure.set("Unexpected exception: " + e);
+                }
+            }
+        });
+
+        // then:
+        assertEquals(failure.get(), "", failure.get());
+    }
+
+    @Test
+    public void observerOnNextErrorClosesResponse() throws InterruptedException {
+        // given:
+        final HttpResource resource = createDefaultResource();
+        final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
+
+        // when:
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnNextFailure(resource.write(newState));
+
+        // then:
+        verify(mockResponse).close();
+    }
+
+    @Test
+    public void observerOnCompletedErrorClosesResponse() throws InterruptedException {
+        // given:
+        final HttpResource resource = createDefaultResource();
+        final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
+
+        // when:
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnCompletedFailure(resource.write(newState));
+
+        // then:
+        verify(mockResponse).close();
+    }
+
+    @Test
+    public void observerOnNextAndOnErrorErrorsClosesResponse() throws InterruptedException {
+        // given:
+        final HttpResource resource = createDefaultResource();
+        final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
+
+        // when:
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnNextAndOnErrorFailures(resource.write(newState));
+
+        // then:
+        verify(mockResponse).close();
+    }
+
+    @Test
+    public void observerOnCompletedAndOnErrorErrorsClosesResponse() throws InterruptedException {
+        // given:
+        final HttpResource resource = createDefaultResource();
+        final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
+
+        // when:
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnCompletedAndOnErrorFailures(resource.write(newState));
+
+        // then:
+        verify(mockResponse).close();
+    }
+
     @Override
     protected HttpResource createDefaultResource() {
         return new HttpResource(this.mockResource, ClientRequest.empty());
@@ -106,6 +252,13 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
      */
     private ListenerInvokingAnswer invokeListener() {
         return new ListenerInvokingAnswer(this.expectedResponse);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void whenResourceWriteThenReturn(final ClientResponse mockResponse) {
+        reset(this.mockResourceBuilder);
+        when(this.mockResourceBuilder.put(any(ITypeListener.class)))
+            .thenAnswer(new ListenerInvokingAnswer(mockResponse));
     }
 
 }
