@@ -71,7 +71,7 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         final ClientRequest update = createDefaultUpdate();
 
         // when:
-        final ClientResponse response = resource.update(update).toBlockingObservable().single();
+        final ClientResponse response = resource.update(update).toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);

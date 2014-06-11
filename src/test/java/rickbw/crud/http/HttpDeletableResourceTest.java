@@ -70,7 +70,7 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
         final HttpResource resource = createDefaultResource();
 
         // when:
-        final ClientResponse response = resource.delete().toBlockingObservable().single();
+        final ClientResponse response = resource.delete().toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);

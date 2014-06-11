@@ -70,7 +70,7 @@ public class HttpReadableResourceTest extends ReadableResourceTest<ClientRespons
         final HttpResource resource = createDefaultResource();
 
         // when:
-        final ClientResponse response = resource.get().toBlockingObservable().single();
+        final ClientResponse response = resource.get().toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);

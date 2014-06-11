@@ -72,7 +72,7 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         final ClientRequest newValue = createDefaultResourceState();
 
         // when:
-        final ClientResponse response = resource.write(newValue).toBlockingObservable().single();
+        final ClientResponse response = resource.write(newValue).toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);
