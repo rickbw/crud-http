@@ -15,14 +15,13 @@
 package rickbw.crud.http;
 
 import java.util.Objects;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.async.ITypeListener;
 
+import rickbw.crud.util.ToObservableFuture;
 import rx.Observer;
 
 
@@ -39,33 +38,11 @@ import rx.Observer;
     }
 
     @Override
-    public void onComplete(final Future<ClientResponse> futureResponse)
-    throws InterruptedException {
-        try {
-            final ClientResponse response = futureResponse.get();
-            this.observer.onNext(response);
-            this.observer.onCompleted();
-        } catch (final CancellationException | InterruptedException cx) {
-            /* Not really an "error" from the Rx perspective; the calculation
-             * was simply halted before yielding a result. Just complete.
-             * (And practically speaking, if we chain this to onError(), and
-             * the application transforms its Observable into a Future, it
-             * will see e.g. CancellationException wrapped in
-             * ExecutionException, which is not correct.)
-             */
-            this.observer.onCompleted();
-        } catch (final ExecutionException ex) {
-            /* The error that occurred, and to which the Observer must
-             * respond, isn't this one but the cause. The Observer doesn't
-             * know anything about Futures and ExecutionException and
-             * shouldn't have to.
-             */
-            assert ex.getCause() != null; // always true for ExecutionException
-            this.observer.onError(ex.getCause());
-        } catch (final Throwable ex) {
-            // Something strange happened. Maybe the Observer itself threw.
-            this.observer.onError(ex);
-        }
+    public void onComplete(final Future<ClientResponse> futureResponse) {
+        /* XXX: Use Crud's ToObservableFuture rather than RxJava's
+         * Observable.from(Future) to work around a bug in the latter.
+         */
+        ToObservableFuture.fromFuture(futureResponse).subscribe(this.observer);
     }
 
     @Override

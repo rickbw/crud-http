@@ -136,7 +136,8 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         final HttpResource resource = createDefaultResource();
         final ClientRequest update = createDefaultUpdate();
 
-        final AtomicReference<String> failure = new AtomicReference<>("");
+        final String success = "success";
+        final AtomicReference<String> successOrFail = new AtomicReference<>("never called");
 
         reset(this.mockResourceBuilder);
 
@@ -146,25 +147,26 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         subscribeAndWait(resource.update(update), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
-                failure.set("onNext called");
+                successOrFail.set("onNext called");
             }
 
             @Override
             public void onCompleted() {
-                failure.set("onCompleted called");
+                successOrFail.set("onCompleted called");
             }
 
             @Override
             public void onError(final Throwable e) {
-                // Check cause, because it got wrapped in ExecutionException.
-                if (!expectedException.equals(e.getCause())) {
-                    failure.set("Unexpected exception: " + e);
+                if (expectedException.equals(e)) {
+                    successOrFail.set(success);
+                } else {
+                    successOrFail.set("Unexpected exception: " + e);
                 }
             }
         });
 
         // then:
-        assertEquals(failure.get(), "", failure.get());
+        assertEquals(success, successOrFail.get());
     }
 
     @Test
