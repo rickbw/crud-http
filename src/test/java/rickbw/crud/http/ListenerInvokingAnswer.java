@@ -27,7 +27,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 
 
-/*package*/ final class ListenerInvokingAnswer implements Answer<Future<ClientResponse>> {
+public final class ListenerInvokingAnswer implements Answer<Future<ClientResponse>> {
 
     private final ListenableFuture<ClientResponse> mockFuture;
 
