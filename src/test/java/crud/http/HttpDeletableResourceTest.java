@@ -12,7 +12,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package rickbw.crud.http;
+package crud.http;
 
 import static crud.RxAssertions.subscribeAndWait;
 import static crud.RxAssertions.subscribeWithOnCompletedAndOnErrorFailures;
@@ -34,18 +34,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.WritableResourceTest;
+import crud.DeletableResourceTest;
 import rx.Observer;
 
 
-public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest, ClientResponse> {
+public class HttpDeletableResourceTest extends DeletableResourceTest<ClientResponse> {
 
     private final AsyncWebResource mockResource = mock(AsyncWebResource.class);
     private final AsyncWebResource.Builder mockResourceBuilder = mock(AsyncWebResource.Builder.class);
@@ -62,17 +61,16 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
     @SuppressWarnings("unchecked")
     public void setup() {
         when(this.mockResource.getRequestBuilder()).thenReturn(this.mockResourceBuilder);
-        when(this.mockResourceBuilder.put(Matchers.any(ITypeListener.class))).thenAnswer(invokeListener());
+        when(this.mockResourceBuilder.delete(any(ITypeListener.class))).thenAnswer(invokeListener());
     }
 
     @Test
     public void subscribeCallsMocks() {
         // given:
         final HttpResource resource = createDefaultResource();
-        final ClientRequest newValue = createDefaultResourceState();
 
         // when:
-        final ClientResponse response = resource.write(newValue).toBlocking().single();
+        final ClientResponse response = resource.delete().toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);
@@ -80,35 +78,32 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
     }
 
     @Test
-    public void clientRequestsCopied() {
+    public void templateRequestCopied() {
         // given:
-        final ClientRequest mockRequestTemplate = createDefaultResourceState();
-        final ClientRequest mockRequest = createDefaultResourceState();
+        final ClientRequest mockRequestTemplate = mock(ClientRequest.class);
         final HttpResource resource = new HttpResource(this.mockResource, mockRequestTemplate);
 
         // when:
-        resource.write(mockRequest).subscribe();
+        resource.delete().subscribe();
 
         // then:
         verify(mockRequestTemplate).updateResource(this.mockResourceBuilder);
-        verify(mockRequest).updateResource(this.mockResourceBuilder);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void httpPutErrorCallsOnError() throws InterruptedException {
+    public void httpDeleteErrorCallsOnError() throws InterruptedException {
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock failure");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest newState = createDefaultResourceState();
 
         final AtomicBoolean failed = new AtomicBoolean();
 
         reset(this.mockResourceBuilder);
 
         // when:
-        when(this.mockResourceBuilder.put(any(ITypeListener.class))).thenThrow(expectedException);
-        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
+        when(this.mockResourceBuilder.delete(any(ITypeListener.class))).thenThrow(expectedException);
+        subscribeAndWait(resource.delete(), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 failed.set(true);
@@ -135,7 +130,6 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock exception");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest newState = createDefaultResourceState();
 
         final String success = "success";
         final AtomicReference<String> successOrFail = new AtomicReference<>("never called");
@@ -143,9 +137,9 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         reset(this.mockResourceBuilder);
 
         // when:
-        when(this.mockResourceBuilder.put(any(ITypeListener.class)))
+        when(this.mockResourceBuilder.delete(any(ITypeListener.class)))
             .thenAnswer(new ListenerInvokingAnswer(expectedException));
-        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
+        subscribeAndWait(resource.delete(), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 successOrFail.set("onNext called");
@@ -175,11 +169,10 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnNextFailure(resource.write(newState));
+        whenResourceDeleteThenReturn(mockResponse);
+        subscribeWithOnNextFailure(resource.delete());
 
         // then:
         verify(mockResponse).close();
@@ -190,11 +183,10 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnCompletedFailure(resource.write(newState));
+        whenResourceDeleteThenReturn(mockResponse);
+        subscribeWithOnCompletedFailure(resource.delete());
 
         // then:
         verify(mockResponse).close();
@@ -205,11 +197,10 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnNextAndOnErrorFailures(resource.write(newState));
+        whenResourceDeleteThenReturn(mockResponse);
+        subscribeWithOnNextAndOnErrorFailures(resource.delete());
 
         // then:
         verify(mockResponse).close();
@@ -220,11 +211,10 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnCompletedAndOnErrorFailures(resource.write(newState));
+        whenResourceDeleteThenReturn(mockResponse);
+        subscribeWithOnCompletedAndOnErrorFailures(resource.delete());
 
         // then:
         verify(mockResponse).close();
@@ -233,11 +223,6 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
     @Override
     protected HttpResource createDefaultResource() {
         return new HttpResource(this.mockResource, ClientRequest.empty());
-    }
-
-    @Override
-    protected ClientRequest createDefaultResourceState() {
-        return mock(ClientRequest.class);
     }
 
     private static ClientResponse createResponse() {
@@ -257,9 +242,9 @@ public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest
     }
 
     @SuppressWarnings("unchecked")
-    private void whenResourceWriteThenReturn(final ClientResponse mockResponse) {
+    private void whenResourceDeleteThenReturn(final ClientResponse mockResponse) {
         reset(this.mockResourceBuilder);
-        when(this.mockResourceBuilder.put(any(ITypeListener.class)))
+        when(this.mockResourceBuilder.delete(any(ITypeListener.class)))
             .thenAnswer(new ListenerInvokingAnswer(mockResponse));
     }
 

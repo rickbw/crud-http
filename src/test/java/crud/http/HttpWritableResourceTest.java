@@ -12,7 +12,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package rickbw.crud.http;
+package crud.http;
 
 import static crud.RxAssertions.subscribeAndWait;
 import static crud.RxAssertions.subscribeWithOnCompletedAndOnErrorFailures;
@@ -34,17 +34,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.DeletableResourceTest;
+import crud.WritableResourceTest;
 import rx.Observer;
 
 
-public class HttpDeletableResourceTest extends DeletableResourceTest<ClientResponse> {
+public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest, ClientResponse> {
 
     private final AsyncWebResource mockResource = mock(AsyncWebResource.class);
     private final AsyncWebResource.Builder mockResourceBuilder = mock(AsyncWebResource.Builder.class);
@@ -61,16 +62,17 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
     @SuppressWarnings("unchecked")
     public void setup() {
         when(this.mockResource.getRequestBuilder()).thenReturn(this.mockResourceBuilder);
-        when(this.mockResourceBuilder.delete(any(ITypeListener.class))).thenAnswer(invokeListener());
+        when(this.mockResourceBuilder.put(Matchers.any(ITypeListener.class))).thenAnswer(invokeListener());
     }
 
     @Test
     public void subscribeCallsMocks() {
         // given:
         final HttpResource resource = createDefaultResource();
+        final ClientRequest newValue = createDefaultResourceState();
 
         // when:
-        final ClientResponse response = resource.delete().toBlocking().single();
+        final ClientResponse response = resource.write(newValue).toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);
@@ -78,32 +80,35 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
     }
 
     @Test
-    public void templateRequestCopied() {
+    public void clientRequestsCopied() {
         // given:
-        final ClientRequest mockRequestTemplate = mock(ClientRequest.class);
+        final ClientRequest mockRequestTemplate = createDefaultResourceState();
+        final ClientRequest mockRequest = createDefaultResourceState();
         final HttpResource resource = new HttpResource(this.mockResource, mockRequestTemplate);
 
         // when:
-        resource.delete().subscribe();
+        resource.write(mockRequest).subscribe();
 
         // then:
         verify(mockRequestTemplate).updateResource(this.mockResourceBuilder);
+        verify(mockRequest).updateResource(this.mockResourceBuilder);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void httpDeleteErrorCallsOnError() throws InterruptedException {
+    public void httpPutErrorCallsOnError() throws InterruptedException {
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock failure");
         final HttpResource resource = createDefaultResource();
+        final ClientRequest newState = createDefaultResourceState();
 
         final AtomicBoolean failed = new AtomicBoolean();
 
         reset(this.mockResourceBuilder);
 
         // when:
-        when(this.mockResourceBuilder.delete(any(ITypeListener.class))).thenThrow(expectedException);
-        subscribeAndWait(resource.delete(), 1, new Observer<ClientResponse>() {
+        when(this.mockResourceBuilder.put(any(ITypeListener.class))).thenThrow(expectedException);
+        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 failed.set(true);
@@ -130,6 +135,7 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock exception");
         final HttpResource resource = createDefaultResource();
+        final ClientRequest newState = createDefaultResourceState();
 
         final String success = "success";
         final AtomicReference<String> successOrFail = new AtomicReference<>("never called");
@@ -137,9 +143,9 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
         reset(this.mockResourceBuilder);
 
         // when:
-        when(this.mockResourceBuilder.delete(any(ITypeListener.class)))
+        when(this.mockResourceBuilder.put(any(ITypeListener.class)))
             .thenAnswer(new ListenerInvokingAnswer(expectedException));
-        subscribeAndWait(resource.delete(), 1, new Observer<ClientResponse>() {
+        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 successOrFail.set("onNext called");
@@ -169,10 +175,11 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceDeleteThenReturn(mockResponse);
-        subscribeWithOnNextFailure(resource.delete());
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnNextFailure(resource.write(newState));
 
         // then:
         verify(mockResponse).close();
@@ -183,10 +190,11 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceDeleteThenReturn(mockResponse);
-        subscribeWithOnCompletedFailure(resource.delete());
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnCompletedFailure(resource.write(newState));
 
         // then:
         verify(mockResponse).close();
@@ -197,10 +205,11 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceDeleteThenReturn(mockResponse);
-        subscribeWithOnNextAndOnErrorFailures(resource.delete());
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnNextAndOnErrorFailures(resource.write(newState));
 
         // then:
         verify(mockResponse).close();
@@ -211,10 +220,11 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
+        final ClientRequest newState = createDefaultResourceState();
 
         // when:
-        whenResourceDeleteThenReturn(mockResponse);
-        subscribeWithOnCompletedAndOnErrorFailures(resource.delete());
+        whenResourceWriteThenReturn(mockResponse);
+        subscribeWithOnCompletedAndOnErrorFailures(resource.write(newState));
 
         // then:
         verify(mockResponse).close();
@@ -223,6 +233,11 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
     @Override
     protected HttpResource createDefaultResource() {
         return new HttpResource(this.mockResource, ClientRequest.empty());
+    }
+
+    @Override
+    protected ClientRequest createDefaultResourceState() {
+        return mock(ClientRequest.class);
     }
 
     private static ClientResponse createResponse() {
@@ -242,9 +257,9 @@ public class HttpDeletableResourceTest extends DeletableResourceTest<ClientRespo
     }
 
     @SuppressWarnings("unchecked")
-    private void whenResourceDeleteThenReturn(final ClientResponse mockResponse) {
+    private void whenResourceWriteThenReturn(final ClientResponse mockResponse) {
         reset(this.mockResourceBuilder);
-        when(this.mockResourceBuilder.delete(any(ITypeListener.class)))
+        when(this.mockResourceBuilder.put(any(ITypeListener.class)))
             .thenAnswer(new ListenerInvokingAnswer(mockResponse));
     }
 

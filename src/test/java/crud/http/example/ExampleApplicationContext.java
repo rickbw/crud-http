@@ -12,7 +12,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package rickbw.crud.http.example;
+package crud.http.example;
 
 import java.net.URI;
 import java.util.UUID;
@@ -26,9 +26,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import crud.ResourceProvider;
 import crud.fluent.FluentReadableResourceProvider;
 import crud.fluent.FluentWritableResourceProvider;
-import rickbw.crud.http.ClientRequest;
-import rickbw.crud.http.HttpResourceProvider;
-import rickbw.crud.http.util.FailedResponseOperator;
+import crud.http.ClientRequest;
+import crud.http.HttpResourceProvider;
+import crud.http.util.FailedResponseOperator;
 import rx.functions.Func1;
 
 

@@ -13,7 +13,7 @@
  * the License.
  */
 
-package rickbw.crud.http;
+package crud.http;
 
 import java.util.Collection;
 import java.util.Locale;

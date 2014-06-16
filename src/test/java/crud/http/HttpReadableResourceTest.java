@@ -12,7 +12,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package rickbw.crud.http;
+package crud.http;
 
 import static crud.RxAssertions.subscribeAndWait;
 import static crud.RxAssertions.subscribeWithOnCompletedAndOnErrorFailures;
@@ -40,11 +40,11 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.UpdatableResourceTest;
+import crud.ReadableResourceTest;
 import rx.Observer;
 
 
-public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientRequest, ClientResponse> {
+public class HttpReadableResourceTest extends ReadableResourceTest<ClientResponse> {
 
     private final AsyncWebResource mockResource = mock(AsyncWebResource.class);
     private final AsyncWebResource.Builder mockResourceBuilder = mock(AsyncWebResource.Builder.class);
@@ -61,17 +61,16 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
     @SuppressWarnings("unchecked")
     public void setup() {
         when(this.mockResource.getRequestBuilder()).thenReturn(this.mockResourceBuilder);
-        when(this.mockResourceBuilder.post(any(ITypeListener.class))).thenAnswer(invokeListener());
+        when(this.mockResourceBuilder.get(any(ITypeListener.class))).thenAnswer(invokeListener());
     }
 
     @Test
     public void subscribeCallsMocks() {
         // given:
         final HttpResource resource = createDefaultResource();
-        final ClientRequest update = createDefaultUpdate();
 
         // when:
-        final ClientResponse response = resource.update(update).toBlocking().single();
+        final ClientResponse response = resource.get().toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);
@@ -79,35 +78,32 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
     }
 
     @Test
-    public void clientRequestsCopied() {
+    public void templateRequestCopied() {
         // given:
-        final ClientRequest mockRequestTemplate = createDefaultUpdate();
-        final ClientRequest mockRequest = createDefaultUpdate();
+        final ClientRequest mockRequestTemplate = mock(ClientRequest.class);
         final HttpResource resource = new HttpResource(this.mockResource, mockRequestTemplate);
 
         // when:
-        resource.update(mockRequest).subscribe();
+        resource.get().subscribe();
 
         // then:
         verify(mockRequestTemplate).updateResource(this.mockResourceBuilder);
-        verify(mockRequest).updateResource(this.mockResourceBuilder);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void httpPostErrorCallsOnError() throws InterruptedException {
+    public void httpGetErrorCallsOnError() throws InterruptedException {
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock failure");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest update = createDefaultUpdate();
 
         final AtomicBoolean failed = new AtomicBoolean();
 
         reset(this.mockResourceBuilder);
 
         // when:
-        when(this.mockResourceBuilder.post(any(ITypeListener.class))).thenThrow(expectedException);
-        subscribeAndWait(resource.update(update), 1, new Observer<ClientResponse>() {
+        when(this.mockResourceBuilder.get(any(ITypeListener.class))).thenThrow(expectedException);
+        subscribeAndWait(resource.get(), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 failed.set(true);
@@ -134,7 +130,6 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock exception");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest update = createDefaultUpdate();
 
         final String success = "success";
         final AtomicReference<String> successOrFail = new AtomicReference<>("never called");
@@ -142,9 +137,9 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         reset(this.mockResourceBuilder);
 
         // when:
-        when(this.mockResourceBuilder.post(any(ITypeListener.class)))
+        when(this.mockResourceBuilder.get(any(ITypeListener.class)))
             .thenAnswer(new ListenerInvokingAnswer(expectedException));
-        subscribeAndWait(resource.update(update), 1, new Observer<ClientResponse>() {
+        subscribeAndWait(resource.get(), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 successOrFail.set("onNext called");
@@ -174,11 +169,10 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
 
         // when:
-        whenResourceUpdateThenReturn(mockResponse);
-        subscribeWithOnNextFailure(resource.update(update));
+        whenResourceGetThenReturn(mockResponse);
+        subscribeWithOnNextFailure(resource.get());
 
         // then:
         verify(mockResponse).close();
@@ -189,11 +183,10 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
 
         // when:
-        whenResourceUpdateThenReturn(mockResponse);
-        subscribeWithOnCompletedFailure(resource.update(update));
+        whenResourceGetThenReturn(mockResponse);
+        subscribeWithOnCompletedFailure(resource.get());
 
         // then:
         verify(mockResponse).close();
@@ -204,11 +197,10 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
 
         // when:
-        whenResourceUpdateThenReturn(mockResponse);
-        subscribeWithOnNextAndOnErrorFailures(resource.update(update));
+        whenResourceGetThenReturn(mockResponse);
+        subscribeWithOnNextAndOnErrorFailures(resource.get());
 
         // then:
         verify(mockResponse).close();
@@ -219,11 +211,10 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
 
         // when:
-        whenResourceUpdateThenReturn(mockResponse);
-        subscribeWithOnCompletedAndOnErrorFailures(resource.update(update));
+        whenResourceGetThenReturn(mockResponse);
+        subscribeWithOnCompletedAndOnErrorFailures(resource.get());
 
         // then:
         verify(mockResponse).close();
@@ -232,11 +223,6 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
     @Override
     protected HttpResource createDefaultResource() {
         return new HttpResource(this.mockResource, ClientRequest.empty());
-    }
-
-    @Override
-    protected ClientRequest createDefaultUpdate() {
-        return mock(ClientRequest.class);
     }
 
     private static ClientResponse createResponse() {
@@ -256,9 +242,9 @@ public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientReque
     }
 
     @SuppressWarnings("unchecked")
-    private void whenResourceUpdateThenReturn(final ClientResponse mockResponse) {
+    private void whenResourceGetThenReturn(final ClientResponse mockResponse) {
         reset(this.mockResourceBuilder);
-        when(this.mockResourceBuilder.post(any(ITypeListener.class)))
+        when(this.mockResourceBuilder.get(any(ITypeListener.class)))
             .thenAnswer(new ListenerInvokingAnswer(mockResponse));
     }
 

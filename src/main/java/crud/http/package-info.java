@@ -6,4 +6,4 @@
  * {@link java.util.concurrent.ExecutorService} from the
  * {@link com.sun.jersey.api.client.Client} itself.
  */
-package rickbw.crud.http;
+package crud.http;
