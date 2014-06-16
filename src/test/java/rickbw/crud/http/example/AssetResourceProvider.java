@@ -16,14 +16,14 @@ package rickbw.crud.http.example;
 
 import java.util.UUID;
 
-import rickbw.crud.ReadableResource;
-import rickbw.crud.ReadableResourceProvider;
-import rickbw.crud.Resource;
-import rickbw.crud.ResourceProvider;
-import rickbw.crud.WritableResource;
-import rickbw.crud.WritableResourceProvider;
-import rickbw.crud.fluent.FluentReadableResourceProvider;
-import rickbw.crud.fluent.FluentWritableResourceProvider;
+import crud.ReadableResource;
+import crud.ReadableResourceProvider;
+import crud.Resource;
+import crud.ResourceProvider;
+import crud.WritableResource;
+import crud.WritableResourceProvider;
+import crud.fluent.FluentReadableResourceProvider;
+import crud.fluent.FluentWritableResourceProvider;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -42,7 +42,7 @@ implements ReadableResourceProvider<UUID, Asset>, WritableResourceProvider<UUID,
     /**
      * Wrap a pair of {@link ResourceProvider}s with a new
      * AssetResourceProvider. These input providers might be, for example, a
-     * {@link rickbw.crud.http.HttpResourceProvider}, if the Assets are to
+     * {@link crud.http.HttpResourceProvider}, if the Assets are to
      * be backed by a web service. However, any backing providers will do,
      * provided there is some way to transform their inputs and outputs
      * appropriately.

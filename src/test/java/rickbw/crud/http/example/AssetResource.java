@@ -14,9 +14,9 @@
  */
 package rickbw.crud.http.example;
 
-import rickbw.crud.ReadableResource;
-import rickbw.crud.Resource;
-import rickbw.crud.WritableResource;
+import crud.ReadableResource;
+import crud.Resource;
+import crud.WritableResource;
 
 
 /**

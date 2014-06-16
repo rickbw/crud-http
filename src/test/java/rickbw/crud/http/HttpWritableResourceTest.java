@@ -14,6 +14,11 @@
  */
 package rickbw.crud.http;
 
+import static crud.RxAssertions.subscribeAndWait;
+import static crud.RxAssertions.subscribeWithOnCompletedAndOnErrorFailures;
+import static crud.RxAssertions.subscribeWithOnCompletedFailure;
+import static crud.RxAssertions.subscribeWithOnNextAndOnErrorFailures;
+import static crud.RxAssertions.subscribeWithOnNextFailure;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -22,11 +27,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rickbw.crud.RxAssertions.subscribeAndWait;
-import static rickbw.crud.RxAssertions.subscribeWithOnCompletedAndOnErrorFailures;
-import static rickbw.crud.RxAssertions.subscribeWithOnCompletedFailure;
-import static rickbw.crud.RxAssertions.subscribeWithOnNextAndOnErrorFailures;
-import static rickbw.crud.RxAssertions.subscribeWithOnNextFailure;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,7 +41,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import rickbw.crud.WritableResourceTest;
+import crud.WritableResourceTest;
 import rx.Observer;
 
 

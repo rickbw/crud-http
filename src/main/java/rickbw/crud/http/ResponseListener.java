@@ -21,7 +21,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.async.ITypeListener;
 
-import rickbw.crud.util.ToObservableFuture;
+import crud.util.ToObservableFuture;
 import rx.Observer;
 
 

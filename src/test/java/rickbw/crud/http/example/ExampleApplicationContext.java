@@ -23,9 +23,9 @@ import javax.ws.rs.core.Response;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import rickbw.crud.ResourceProvider;
-import rickbw.crud.fluent.FluentReadableResourceProvider;
-import rickbw.crud.fluent.FluentWritableResourceProvider;
+import crud.ResourceProvider;
+import crud.fluent.FluentReadableResourceProvider;
+import crud.fluent.FluentWritableResourceProvider;
 import rickbw.crud.http.ClientRequest;
 import rickbw.crud.http.HttpResourceProvider;
 import rickbw.crud.http.util.FailedResponseOperator;

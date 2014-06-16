@@ -1,6 +1,6 @@
 /**
  * This package contains implementations of the interfaces in the package
- * {@link rickbw.crud} in terms of the Jersey HTTP
+ * {@link crud} in terms of the Jersey HTTP
  * library.
  * Resources are asynchronous, and use the
  * {@link java.util.concurrent.ExecutorService} from the

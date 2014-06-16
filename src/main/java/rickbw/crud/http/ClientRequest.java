@@ -32,7 +32,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.sun.jersey.api.client.PartialRequestBuilder;
 
-import rickbw.crud.ResourceProvider;
+import crud.ResourceProvider;
 
 
 /**

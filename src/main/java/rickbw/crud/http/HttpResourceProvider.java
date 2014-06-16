@@ -21,11 +21,11 @@ import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import rickbw.crud.DeletableResourceProvider;
-import rickbw.crud.ReadableResourceProvider;
-import rickbw.crud.ResourceProvider;
-import rickbw.crud.UpdatableResourceProvider;
-import rickbw.crud.WritableResourceProvider;
+import crud.DeletableResourceProvider;
+import crud.ReadableResourceProvider;
+import crud.ResourceProvider;
+import crud.UpdatableResourceProvider;
+import crud.WritableResourceProvider;
 
 
 /**
