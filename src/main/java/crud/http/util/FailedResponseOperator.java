@@ -54,8 +54,13 @@ implements Observable.Operator<ClientResponse, ClientResponse> {
 
     private static final int MIN_STATUS_CODE = 100;
     private static final int MAX_STATUS_CODE = 599;
+    private static final int MIN_SUCCESS_STATUS_CODE = 200;
+    private static final int MAX_SUCCESS_STATUS_CODE = 299;
+    private static final int MIN_SERVER_ERROR_STATUS_CODE = 500;
+    private static final int MAX_SERVER_ERROR_STATUS_CODE = 599;
 
     private static FailedResponseOperator serverErrors = null;
+    private static FailedResponseOperator nonSuccessResponses = null;
 
     private final ImmutableSet<Integer> failedStatuses;
 
@@ -67,10 +72,31 @@ implements Observable.Operator<ClientResponse, ClientResponse> {
         if (serverErrors == null) {
             // Don't delegate to fromStatusCodes(): it does extraneous checking
             serverErrors = new FailedResponseOperator(ContiguousSet.create(
-                    Range.closed(500, 599),
+                    Range.closed(MIN_SERVER_ERROR_STATUS_CODE, MAX_SERVER_ERROR_STATUS_CODE),
                     DiscreteDomain.integers()));
         }
         return serverErrors;
+    }
+
+    /**
+     * Treat all non-200-range responses as errors.
+     */
+    public static FailedResponseOperator nonSuccessResponses() {
+        if (nonSuccessResponses == null) {
+            final ImmutableSet<Integer> prefix = ContiguousSet.create(
+                    Range.closedOpen(MIN_STATUS_CODE, MIN_SUCCESS_STATUS_CODE),
+                    DiscreteDomain.integers());
+            final ImmutableSet<Integer> suffix = ContiguousSet.create(
+                    Range.openClosed(MAX_SUCCESS_STATUS_CODE, MAX_STATUS_CODE),
+                    DiscreteDomain.integers());
+            final ImmutableSet<Integer> all = ImmutableSet.<Integer>builder()
+                    .addAll(prefix)
+                    .addAll(suffix)
+                    .build();
+            // Don't delegate to fromStatusCodes(): it does extraneous checking
+            nonSuccessResponses = new FailedResponseOperator(all);
+        }
+        return nonSuccessResponses;
     }
 
     public static FailedResponseOperator fromClientResponseStatuses(final Iterable<ClientResponse.Status> statuses) {
