@@ -61,6 +61,15 @@ implements ReadableResource<ClientResponse>,
         return obs;
     }
 
+    /**
+     * Create a new request, as from a copy of the default request, overlaying
+     * the properties of the given request. Send the resulting message as an
+     * HTTP {@code PUT} request.
+     *
+     * @param resourceState The request to {@code PUT}, expressed as an
+     *          addition to the default request. If there is no addition, pass
+     *          {@link ClientRequest#empty()}.
+     */
     @Override
     public Observable<ClientResponse> write(final ClientRequest resourceState) {
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
@@ -79,6 +88,15 @@ implements ReadableResource<ClientResponse>,
         return obs;
     }
 
+    /**
+     * Create a new request, as from a copy of the default request, overlaying
+     * the properties of the given request. Send the resulting message as an
+     * HTTP {@code POST} request.
+     *
+     * @param update    The request to {@code POST}, expressed as an addition
+     *          to the default request. If there is no addition, pass
+     *          {@link ClientRequest#empty()}.
+     */
     @Override
     public Observable<ClientResponse> update(final ClientRequest update) {
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
