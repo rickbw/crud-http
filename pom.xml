@@ -22,7 +22,7 @@ the License.
 
     <groupId>rickbw</groupId>
     <artifactId>crud-http</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Crud HTTP Implementation</name>
@@ -65,7 +65,7 @@ the License.
 
         <!-- TODO: Update to Jersey 2.x -->
         <jersey-version>1.18</jersey-version>
-        <crud-api.version>0.5-SNAPSHOT</crud-api.version>
+        <crud-api.version>0.6-SNAPSHOT</crud-api.version>
 
         <junit.version>4.11</junit.version>
         <mockito.version>1.8.5</mockito.version>

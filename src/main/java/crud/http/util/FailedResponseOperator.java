@@ -23,8 +23,8 @@ import com.google.common.collect.Range;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
-import crud.fluent.FluentReadableResource;
-import crud.fluent.FluentReadableResourceProvider;
+import crud.rsrc.FluentReadableResource;
+import crud.rsrc.FluentReadableResourceProvider;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -42,6 +42,8 @@ import rx.Subscriber;
  * to {@code lift} before calling {@code retry}. Otherwise, the only errors
  * that will be detected and retried are those that result in exceptions from
  * Jersey.
+ *
+ * TODO: Build this into {@link crud.http.HttpResource} in a better way.
  *
  * @see UniformInterfaceException#getResponse()
  * @see FluentReadableResource#lift(rx.Observable.Operator)

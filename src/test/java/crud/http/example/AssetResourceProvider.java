@@ -16,14 +16,14 @@ package crud.http.example;
 
 import java.util.UUID;
 
-import crud.ReadableResource;
-import crud.ReadableResourceProvider;
-import crud.Resource;
-import crud.ResourceProvider;
-import crud.WritableResource;
-import crud.WritableResourceProvider;
-import crud.fluent.FluentReadableResourceProvider;
-import crud.fluent.FluentWritableResourceProvider;
+import crud.rsrc.FluentReadableResourceProvider;
+import crud.rsrc.FluentWritableResourceProvider;
+import crud.spi.ReadableResource;
+import crud.spi.ReadableResourceProvider;
+import crud.spi.Resource;
+import crud.spi.ResourceProvider;
+import crud.spi.WritableResource;
+import crud.spi.WritableResourceProvider;
 import rx.Observable;
 import rx.functions.Func1;
 

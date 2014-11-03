@@ -14,9 +14,9 @@
  */
 package crud.http.example;
 
-import crud.ReadableResource;
-import crud.Resource;
-import crud.WritableResource;
+import crud.spi.ReadableResource;
+import crud.spi.Resource;
+import crud.spi.WritableResource;
 
 
 /**

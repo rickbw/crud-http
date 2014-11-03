@@ -41,7 +41,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.WritableResourceTest;
+import crud.spi.WritableResourceTest;
 import rx.Observer;
 
 

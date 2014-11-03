@@ -40,7 +40,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.DeletableResourceTest;
+import crud.spi.DeletableResourceTest;
 import rx.Observer;
 
 

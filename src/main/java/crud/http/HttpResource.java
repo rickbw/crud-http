@@ -20,11 +20,11 @@ import java.util.concurrent.Future;
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.ClientResponse;
 
-import crud.DeletableResource;
-import crud.ReadableResource;
-import crud.Resource;
-import crud.UpdatableResource;
-import crud.WritableResource;
+import crud.spi.DeletableResource;
+import crud.spi.ReadableResource;
+import crud.spi.Resource;
+import crud.spi.UpdatableResource;
+import crud.spi.WritableResource;
 import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.Subscriptions;
