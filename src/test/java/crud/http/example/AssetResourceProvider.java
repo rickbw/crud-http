@@ -18,12 +18,12 @@ import java.util.UUID;
 
 import crud.rsrc.ReadableProvider;
 import crud.rsrc.WritableProvider;
-import crud.spi.ReadableSpec;
 import crud.spi.ReadableProviderSpec;
+import crud.spi.ReadableSpec;
 import crud.spi.Resource;
 import crud.spi.ResourceProviderSpec;
-import crud.spi.WritableSpec;
 import crud.spi.WritableProviderSpec;
+import crud.spi.WritableSpec;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -71,15 +71,24 @@ implements ReadableProviderSpec<UUID, Asset>, WritableProviderSpec<UUID, Asset, 
         return new AssetResourceProvider(reader, writer);
     }
 
+    @Override
+    public AssetResource writer(final UUID key) {
+        return create(key);
+    }
+
+    @Override
+    public AssetResource reader(final UUID key) {
+        return create(key);
+    }
+
     /**
      * @return  a {@link Resource} encapsulating an {@link Asset} with the
      *          given ID. The state of that Asset may be read or written using
      *          that Resource.
      */
-    @Override
-    public AssetResource get(final UUID assetId) {
-        final ReadableSpec<Asset> readRsrc = this.readDelegate.get(assetId);
-        final WritableSpec<Asset, Boolean> writeRsrc = this.writeDelegate.get(assetId);
+    private AssetResource create(final UUID assetId) {
+        final ReadableSpec<Asset> readRsrc = this.readDelegate.reader(assetId);
+        final WritableSpec<Asset, Boolean> writeRsrc = this.writeDelegate.writer(assetId);
         return new AssetResourceImpl(writeRsrc, readRsrc);
     }
 

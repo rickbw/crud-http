@@ -32,7 +32,7 @@ class AssetApplication {
     }
 
     public void processAsset(final UUID assetId) {
-        final AssetResource resource = this.assetProvider.get(assetId);
+        final AssetResource resource = this.assetProvider.writer(assetId);
         resource.get().subscribe(new Observer<Asset>() {
             @Override
             public void onNext(final Asset asset) {

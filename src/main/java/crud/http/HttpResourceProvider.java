@@ -71,7 +71,26 @@ implements ReadableProviderSpec<URI, ClientResponse>,
     }
 
     @Override
-    public HttpResource get(final URI uri) {
+    public HttpResource reader(final URI key) {
+        return create(key);
+    }
+
+    @Override
+    public HttpResource deleter(final URI key) {
+        return create(key);
+    }
+
+    @Override
+    public HttpResource writer(final URI key) {
+        return create(key);
+    }
+
+    @Override
+    public HttpResource updater(final URI key) {
+        return create(key);
+    }
+
+    private HttpResource create(final URI uri) {
         final AsyncWebResource resource = this.restClient.asyncResource(uri);
         return new HttpResource(resource, this.requestTemplate);
     }
