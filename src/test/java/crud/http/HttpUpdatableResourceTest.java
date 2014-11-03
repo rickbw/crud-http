@@ -40,11 +40,11 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.spi.UpdatableResourceTest;
+import crud.spi.UpdatableSpecTest;
 import rx.Observer;
 
 
-public class HttpUpdatableResourceTest extends UpdatableResourceTest<ClientRequest, ClientResponse> {
+public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, ClientResponse> {
 
     private final AsyncWebResource mockResource = mock(AsyncWebResource.class);
     private final AsyncWebResource.Builder mockResourceBuilder = mock(AsyncWebResource.Builder.class);

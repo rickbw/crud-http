@@ -41,11 +41,11 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.spi.WritableResourceTest;
+import crud.spi.WritableSpecTest;
 import rx.Observer;
 
 
-public class HttpWritableResourceTest extends WritableResourceTest<ClientRequest, ClientResponse> {
+public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, ClientResponse> {
 
     private final AsyncWebResource mockResource = mock(AsyncWebResource.class);
     private final AsyncWebResource.Builder mockResourceBuilder = mock(AsyncWebResource.Builder.class);

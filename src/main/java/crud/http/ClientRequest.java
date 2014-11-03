@@ -32,12 +32,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.sun.jersey.api.client.PartialRequestBuilder;
 
-import crud.spi.ResourceProvider;
+import crud.spi.ResourceProviderSpec;
 
 
 /**
  * A container for the state used to initialize HTTP
- * {@link ResourceProvider}s.
+ * {@link ResourceProviderSpec}s.
  */
 public class ClientRequest {
 

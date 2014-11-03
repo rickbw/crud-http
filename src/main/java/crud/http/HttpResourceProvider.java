@@ -21,30 +21,30 @@ import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import crud.spi.DeletableResourceProvider;
-import crud.spi.ReadableResourceProvider;
-import crud.spi.ResourceProvider;
-import crud.spi.UpdatableResourceProvider;
-import crud.spi.WritableResourceProvider;
+import crud.spi.DeletableProviderSpec;
+import crud.spi.ReadableProviderSpec;
+import crud.spi.ResourceProviderSpec;
+import crud.spi.UpdatableProviderSpec;
+import crud.spi.WritableProviderSpec;
 
 
 /**
- * A {@link ResourceProvider} based on Jersey that provides
+ * A {@link ResourceProviderSpec} based on Jersey that provides
  * {@link HttpResource}s at given {@link URI}s. These resources are capable of
  * all four CRUD actions: reading, writing, updating, and deleting.
  */
 public final class HttpResourceProvider
-implements ReadableResourceProvider<URI, ClientResponse>,
-           DeletableResourceProvider<URI, ClientResponse>,
-           WritableResourceProvider<URI, ClientRequest, ClientResponse>,
-           UpdatableResourceProvider<URI, ClientRequest, ClientResponse> {
+implements ReadableProviderSpec<URI, ClientResponse>,
+           DeletableProviderSpec<URI, ClientResponse>,
+           WritableProviderSpec<URI, ClientRequest, ClientResponse>,
+           UpdatableProviderSpec<URI, ClientRequest, ClientResponse> {
 
     private final Client restClient;
     private final ClientRequest requestTemplate;
 
 
     /**
-     * Create a new {@link ResourceProvider} backed by the given
+     * Create a new {@link ResourceProviderSpec} backed by the given
      * {@link Client}.
      */
     public static HttpResourceProvider forClient(final Client restClient) {
@@ -52,7 +52,7 @@ implements ReadableResourceProvider<URI, ClientResponse>,
     }
 
     /**
-     * Create a new {@link ResourceProvider} backed by the given
+     * Create a new {@link ResourceProviderSpec} backed by the given
      * {@link Client}. Each request will include all of the elements of the
      * given request. For example, if all communication should use JSON, you
      * might pass the result of the following:

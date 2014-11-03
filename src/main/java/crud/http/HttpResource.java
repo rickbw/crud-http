@@ -20,11 +20,11 @@ import java.util.concurrent.Future;
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.ClientResponse;
 
-import crud.spi.DeletableResource;
-import crud.spi.ReadableResource;
+import crud.spi.DeletableSpec;
+import crud.spi.ReadableSpec;
 import crud.spi.Resource;
-import crud.spi.UpdatableResource;
-import crud.spi.WritableResource;
+import crud.spi.UpdatableSpec;
+import crud.spi.WritableSpec;
 import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.Subscriptions;
@@ -35,10 +35,10 @@ import rx.subscriptions.Subscriptions;
  * reading, writing, updating, and deleting.
  */
 public class HttpResource
-implements ReadableResource<ClientResponse>,
-           DeletableResource<ClientResponse>,
-           WritableResource<ClientRequest, ClientResponse>,
-           UpdatableResource<ClientRequest, ClientResponse> {
+implements ReadableSpec<ClientResponse>,
+           DeletableSpec<ClientResponse>,
+           WritableSpec<ClientRequest, ClientResponse>,
+           UpdatableSpec<ClientRequest, ClientResponse> {
 
     private final AsyncWebResource resource;
     private final ClientRequest requestTemplate;

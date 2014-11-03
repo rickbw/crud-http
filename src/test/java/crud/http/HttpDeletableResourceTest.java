@@ -40,11 +40,11 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
-import crud.spi.DeletableResourceTest;
+import crud.spi.DeletableSpecTest;
 import rx.Observer;
 
 
-public class HttpDeletableResourceTest extends DeletableResourceTest<ClientResponse> {
+public class HttpDeletableResourceTest extends DeletableSpecTest<ClientResponse> {
 
     private final AsyncWebResource mockResource = mock(AsyncWebResource.class);
     private final AsyncWebResource.Builder mockResourceBuilder = mock(AsyncWebResource.Builder.class);

@@ -23,9 +23,9 @@ import javax.ws.rs.core.Response;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import crud.rsrc.FluentReadableResourceProvider;
-import crud.rsrc.FluentWritableResourceProvider;
-import crud.spi.ResourceProvider;
+import crud.rsrc.ReadableProvider;
+import crud.rsrc.WritableProvider;
+import crud.spi.ResourceProviderSpec;
 import crud.http.ClientRequest;
 import crud.http.HttpResourceProvider;
 import crud.http.util.FailedResponseOperator;
@@ -115,7 +115,7 @@ class ExampleApplicationContext {
     };
 
     /**
-     * Assemble the {@link ResourceProvider} for {@link Asset}s by indicating:
+     * Assemble the {@link ResourceProviderSpec} for {@link Asset}s by indicating:
      * <ol>
      *  <li>how to read them (i.e. from a web service),</li>
      *  <li>how to write them (i.e. to a web service),</li>
@@ -125,9 +125,9 @@ class ExampleApplicationContext {
      */
     public final AssetResourceProvider assetProvider = AssetResourceProvider.create(
             // Retry all server errors on GET up to 3 times:
-            FluentReadableResourceProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
+            ReadableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
             // Retry all server errors on PUT up to 3 times:
-            FluentWritableResourceProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
+            WritableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
             urlBuilder,
             assetDecoder,
             assetEncoder,

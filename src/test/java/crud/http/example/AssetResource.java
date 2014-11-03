@@ -14,9 +14,9 @@
  */
 package crud.http.example;
 
-import crud.spi.ReadableResource;
+import crud.spi.ReadableSpec;
 import crud.spi.Resource;
-import crud.spi.WritableResource;
+import crud.spi.WritableSpec;
 
 
 /**
@@ -24,6 +24,6 @@ import crud.spi.WritableResource;
  * particular {@link Asset}. Assets do not support partial updates or
  * deletion.
  */
-interface AssetResource extends ReadableResource<Asset>, WritableResource<Asset, Boolean> {
+interface AssetResource extends ReadableSpec<Asset>, WritableSpec<Asset, Boolean> {
     // empty
 }
