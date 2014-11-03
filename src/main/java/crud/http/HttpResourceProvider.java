@@ -21,6 +21,10 @@ import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
+import crud.rsrc.Deletable;
+import crud.rsrc.Readable;
+import crud.rsrc.Updatable;
+import crud.rsrc.Writable;
 import crud.spi.DeletableProviderSpec;
 import crud.spi.ReadableProviderSpec;
 import crud.spi.ResourceProviderSpec;
@@ -71,23 +75,23 @@ implements ReadableProviderSpec<URI, ClientResponse>,
     }
 
     @Override
-    public HttpResource reader(final URI key) {
-        return create(key);
+    public Readable<ClientResponse> reader(final URI key) {
+        return Readable.from(create(key));
     }
 
     @Override
-    public HttpResource deleter(final URI key) {
-        return create(key);
+    public Deletable<ClientResponse> deleter(final URI key) {
+        return Deletable.from(create(key));
     }
 
     @Override
-    public HttpResource writer(final URI key) {
-        return create(key);
+    public Writable<ClientRequest, ClientResponse> writer(final URI key) {
+        return Writable.from(create(key));
     }
 
     @Override
-    public HttpResource updater(final URI key) {
-        return create(key);
+    public Updatable<ClientRequest, ClientResponse> updater(final URI key) {
+        return Updatable.from(create(key));
     }
 
     private HttpResource create(final URI uri) {

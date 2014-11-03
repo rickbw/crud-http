@@ -16,7 +16,9 @@ package crud.http.example;
 
 import java.util.UUID;
 
+import crud.rsrc.Readable;
 import crud.rsrc.ReadableProvider;
+import crud.rsrc.Writable;
 import crud.rsrc.WritableProvider;
 import crud.spi.ReadableProviderSpec;
 import crud.spi.ReadableSpec;
@@ -72,13 +74,13 @@ implements ReadableProviderSpec<UUID, Asset>, WritableProviderSpec<UUID, Asset, 
     }
 
     @Override
-    public AssetResource writer(final UUID key) {
-        return create(key);
+    public Writable<Asset, Boolean> writer(final UUID key) {
+        return Writable.from(create(key));
     }
 
     @Override
-    public AssetResource reader(final UUID key) {
-        return create(key);
+    public Readable<Asset> reader(final UUID key) {
+        return Readable.from(create(key));
     }
 
     /**
