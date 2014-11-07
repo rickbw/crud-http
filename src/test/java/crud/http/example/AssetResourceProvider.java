@@ -119,7 +119,7 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
         }
 
         @Override
-        public Observable<Boolean> set(final Asset newValue) {
+        public Observable<Boolean> set(final Observable<? extends Asset> newValue) {
             return this.writeRsrc.set(newValue);
         }
 

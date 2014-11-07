@@ -42,6 +42,7 @@ import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
 import crud.spi.WritableSpecTest;
+import rx.Observable;
 import rx.Observer;
 
 
@@ -69,7 +70,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
     public void subscribeCallsMocks() {
         // given:
         final HttpResource resource = createDefaultResource();
-        final ClientRequest newValue = createDefaultResourceState();
+        final Observable<ClientRequest> newValue = createDefaultResourceState();
 
         // when:
         final ClientResponse response = resource.set(newValue).toBlocking().single();
@@ -82,8 +83,8 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
     @Test
     public void clientRequestsCopied() {
         // given:
-        final ClientRequest mockRequestTemplate = createDefaultResourceState();
-        final ClientRequest mockRequest = createDefaultResourceState();
+        final ClientRequest mockRequestTemplate = createDefaultResourceState().toBlocking().single();
+        final Observable<ClientRequest> mockRequest = createDefaultResourceState();
         final HttpResource resource = new HttpResource(this.mockResource, mockRequestTemplate);
 
         // when:
@@ -91,7 +92,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
 
         // then:
         verify(mockRequestTemplate).updateResource(this.mockResourceBuilder);
-        verify(mockRequest).updateResource(this.mockResourceBuilder);
+        verify(mockRequest.toBlocking().single()).updateResource(this.mockResourceBuilder);
     }
 
     @Test
@@ -100,7 +101,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock failure");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest newState = createDefaultResourceState();
+        final Observable<ClientRequest> newState = createDefaultResourceState();
 
         final AtomicBoolean failed = new AtomicBoolean();
 
@@ -135,7 +136,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock exception");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest newState = createDefaultResourceState();
+        final Observable<ClientRequest> newState = createDefaultResourceState();
 
         final String success = "success";
         final AtomicReference<String> successOrFail = new AtomicReference<>("never called");
@@ -175,7 +176,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
+        final Observable<ClientRequest> newState = createDefaultResourceState();
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
@@ -190,7 +191,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
+        final Observable<ClientRequest> newState = createDefaultResourceState();
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
@@ -205,7 +206,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
+        final Observable<ClientRequest> newState = createDefaultResourceState();
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
@@ -220,7 +221,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest newState = createDefaultResourceState();
+        final Observable<ClientRequest> newState = createDefaultResourceState();
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
@@ -236,8 +237,8 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
     }
 
     @Override
-    protected ClientRequest createDefaultResourceState() {
-        return mock(ClientRequest.class);
+    protected Observable<ClientRequest> createDefaultResourceState() {
+        return Observable.just(mock(ClientRequest.class));
     }
 
     private static ClientResponse createResponse() {

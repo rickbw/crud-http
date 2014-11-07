@@ -23,9 +23,10 @@ import com.sun.jersey.api.client.ClientResponse;
 import crud.spi.DeletableSpec;
 import crud.spi.GettableSpec;
 import crud.spi.Resource;
-import crud.spi.UpdatableSpec;
 import crud.spi.SettableSpec;
+import crud.spi.UpdatableSpec;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.subscriptions.Subscriptions;
 
@@ -62,25 +63,48 @@ implements GettableSpec<ClientResponse>,
     }
 
     /**
-     * Create a new request, as from a copy of the default request, overlaying
+     * For each request emitted by the given {@link Observable}, create a new
+     * request, as from a copy of the default request, overlaying
      * the properties of the given request. Send the resulting message as an
-     * HTTP {@code PUT} request.
+     * HTTP {@code PUT} request. Emit all of the results.
      *
      * @param resourceState The request to {@code PUT}, expressed as an
      *          addition to the default request. If there is no addition, pass
      *          {@link ClientRequest#empty()}.
      */
     @Override
-    public Observable<ClientResponse> set(final ClientRequest resourceState) {
+    public Observable<ClientResponse> set(final Observable<? extends ClientRequest> resourceState) {
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
             @Override
             public void call(final Subscriber<? super ClientResponse> subscriber) {
-                final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
-                HttpResource.this.requestTemplate.updateResource(request);
-                resourceState.updateResource(request);
-                // Don't pass resourceState to put(): already in request
-                final Future<ClientResponse> response = request.put(ResponseListener.adapt(subscriber));
-                subscriber.add(Subscriptions.from(response));
+                final ResponseListener listener = ResponseListener.adapt(subscriber);
+                resourceState.subscribe(new Observer<ClientRequest>() {
+                    @Override
+                    public void onNext(final ClientRequest next) {
+                        if (!subscriber.isUnsubscribed()) {
+                            final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
+                            HttpResource.this.requestTemplate.updateResource(request);
+                            next.updateResource(request);
+                            // Don't pass resourceState to put(): already in request
+                            final Future<ClientResponse> response = request.put(listener);
+                            subscriber.add(Subscriptions.from(response));
+                        }
+                    }
+
+                    @Override
+                    public void onError(final Throwable e) {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onError(e);
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onCompleted();
+                        }
+                    }
+                });
             }
         };
         final Observable<ClientResponse> obs = Observable.create(subscribeAction)

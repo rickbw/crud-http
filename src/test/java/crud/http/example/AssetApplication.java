@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import crud.rsrc.Gettable;
 import crud.rsrc.Settable;
+import rx.Observable;
 import rx.Observer;
 
 
@@ -40,7 +41,7 @@ class AssetApplication {
             @Override
             public void onNext(final Asset asset) {
                 System.out.println("Got the asset " + assetId);
-                final Asset betterAsset = new Asset(assetId, 42L);
+                final Observable<Asset> betterAsset = Observable.just(new Asset(assetId, 42L));
                 writer.set(betterAsset).subscribe();
             }
 
