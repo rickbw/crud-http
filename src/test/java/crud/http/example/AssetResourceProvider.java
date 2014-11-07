@@ -16,16 +16,16 @@ package crud.http.example;
 
 import java.util.UUID;
 
-import crud.rsrc.Readable;
-import crud.rsrc.ReadableProvider;
-import crud.rsrc.Writable;
-import crud.rsrc.WritableProvider;
-import crud.spi.ReadableProviderSpec;
-import crud.spi.ReadableSpec;
+import crud.rsrc.Gettable;
+import crud.rsrc.GettableProvider;
+import crud.rsrc.Settable;
+import crud.rsrc.SettableProvider;
+import crud.spi.GettableProviderSpec;
+import crud.spi.GettableSpec;
 import crud.spi.Resource;
 import crud.spi.ResourceProviderSpec;
-import crud.spi.WritableProviderSpec;
-import crud.spi.WritableSpec;
+import crud.spi.SettableProviderSpec;
+import crud.spi.SettableSpec;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -35,10 +35,10 @@ import rx.functions.Func1;
  * {@link Asset}s, encapsulated by {@link AssetResource}.
  */
 class AssetResourceProvider
-implements ReadableProviderSpec<UUID, Asset>, WritableProviderSpec<UUID, Asset, Boolean> {
+implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, Boolean> {
 
-    private final ReadableProviderSpec<UUID, Asset> readDelegate;
-    private final WritableProviderSpec<UUID, Asset, Boolean> writeDelegate;
+    private final GettableProviderSpec<UUID, Asset> readDelegate;
+    private final SettableProviderSpec<UUID, Asset, Boolean> writeDelegate;
 
 
     /**
@@ -55,18 +55,18 @@ implements ReadableProviderSpec<UUID, Asset>, WritableProviderSpec<UUID, Asset, 
      * @param <R>   The type of the response from the write delegate.
      */
     public static <K, RV, WV, R> AssetResourceProvider create(
-            final ReadableProviderSpec<K, RV> readDelegate,
-            final WritableProviderSpec<K, WV, R> writeDelegate,
+            final GettableProviderSpec<K, RV> readDelegate,
+            final SettableProviderSpec<K, WV, R> writeDelegate,
             final Func1<? super UUID, ? extends K> keyAdapter,
             final Func1<? super RV, ? extends Asset> assetReadMapper,
             final Func1<? super Asset, ? extends WV> assetWriteMapper,
             final Func1<? super R, ? extends Boolean> responseMapper) {
-        final ReadableProvider<UUID, Asset> reader
-                = ReadableProvider.from(readDelegate)
+        final GettableProvider<UUID, Asset> reader
+                = GettableProvider.from(readDelegate)
                     .adaptKey(keyAdapter)
                     .mapValue(assetReadMapper);
-        final WritableProvider<UUID, Asset, Boolean> writer
-                = WritableProvider.from(writeDelegate)
+        final SettableProvider<UUID, Asset, Boolean> writer
+                = SettableProvider.from(writeDelegate)
                     .adaptKey(keyAdapter)
                     .adaptNewValue(assetWriteMapper)
                     .mapResponse(responseMapper);
@@ -74,13 +74,13 @@ implements ReadableProviderSpec<UUID, Asset>, WritableProviderSpec<UUID, Asset, 
     }
 
     @Override
-    public Writable<Asset, Boolean> writer(final UUID key) {
-        return Writable.from(create(key));
+    public Settable<Asset, Boolean> setter(final UUID key) {
+        return Settable.from(create(key));
     }
 
     @Override
-    public Readable<Asset> reader(final UUID key) {
-        return Readable.from(create(key));
+    public Gettable<Asset> getter(final UUID key) {
+        return Gettable.from(create(key));
     }
 
     /**
@@ -89,26 +89,26 @@ implements ReadableProviderSpec<UUID, Asset>, WritableProviderSpec<UUID, Asset, 
      *          that Resource.
      */
     private AssetResource create(final UUID assetId) {
-        final ReadableSpec<Asset> readRsrc = this.readDelegate.reader(assetId);
-        final WritableSpec<Asset, Boolean> writeRsrc = this.writeDelegate.writer(assetId);
+        final GettableSpec<Asset> readRsrc = this.readDelegate.getter(assetId);
+        final SettableSpec<Asset, Boolean> writeRsrc = this.writeDelegate.setter(assetId);
         return new AssetResourceImpl(writeRsrc, readRsrc);
     }
 
     private AssetResourceProvider(
-            final ReadableProviderSpec<UUID, Asset> readDelegate,
-            final WritableProviderSpec<UUID, Asset, Boolean> writeDelegate) {
+            final GettableProviderSpec<UUID, Asset> readDelegate,
+            final SettableProviderSpec<UUID, Asset, Boolean> writeDelegate) {
         this.readDelegate = readDelegate;
         this.writeDelegate = writeDelegate;
     }
 
 
     private static final class AssetResourceImpl implements AssetResource {
-        private final WritableSpec<Asset, Boolean> writeRsrc;
-        private final ReadableSpec<Asset> readRsrc;
+        private final SettableSpec<Asset, Boolean> writeRsrc;
+        private final GettableSpec<Asset> readRsrc;
 
         private AssetResourceImpl(
-                final WritableSpec<Asset, Boolean> writeRsrc,
-                final ReadableSpec<Asset> readRsrc) {
+                final SettableSpec<Asset, Boolean> writeRsrc,
+                final GettableSpec<Asset> readRsrc) {
             this.writeRsrc = writeRsrc;
             this.readRsrc = readRsrc;
         }
@@ -119,8 +119,8 @@ implements ReadableProviderSpec<UUID, Asset>, WritableProviderSpec<UUID, Asset, 
         }
 
         @Override
-        public Observable<Boolean> write(final Asset newValue) {
-            return this.writeRsrc.write(newValue);
+        public Observable<Boolean> set(final Asset newValue) {
+            return this.writeRsrc.set(newValue);
         }
 
         // Every concrete Resource class should override equals() and hashCode().

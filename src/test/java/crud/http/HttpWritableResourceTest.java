@@ -72,7 +72,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         final ClientRequest newValue = createDefaultResourceState();
 
         // when:
-        final ClientResponse response = resource.write(newValue).toBlocking().single();
+        final ClientResponse response = resource.set(newValue).toBlocking().single();
 
         // then:
         assertSame(this.expectedResponse, response);
@@ -87,7 +87,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         final HttpResource resource = new HttpResource(this.mockResource, mockRequestTemplate);
 
         // when:
-        resource.write(mockRequest).subscribe();
+        resource.set(mockRequest).subscribe();
 
         // then:
         verify(mockRequestTemplate).updateResource(this.mockResourceBuilder);
@@ -108,7 +108,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
 
         // when:
         when(this.mockResourceBuilder.put(any(ITypeListener.class))).thenThrow(expectedException);
-        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
+        subscribeAndWait(resource.set(newState), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 failed.set(true);
@@ -145,7 +145,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
         // when:
         when(this.mockResourceBuilder.put(any(ITypeListener.class)))
             .thenAnswer(new ListenerInvokingAnswer(expectedException));
-        subscribeAndWait(resource.write(newState), 1, new Observer<ClientResponse>() {
+        subscribeAndWait(resource.set(newState), 1, new Observer<ClientResponse>() {
             @Override
             public void onNext(final ClientResponse response) {
                 successOrFail.set("onNext called");
@@ -179,7 +179,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnNextFailure(resource.write(newState));
+        subscribeWithOnNextFailure(resource.set(newState));
 
         // then:
         verify(mockResponse).close();
@@ -194,7 +194,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnCompletedFailure(resource.write(newState));
+        subscribeWithOnCompletedFailure(resource.set(newState));
 
         // then:
         verify(mockResponse).close();
@@ -209,7 +209,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnNextAndOnErrorFailures(resource.write(newState));
+        subscribeWithOnNextAndOnErrorFailures(resource.set(newState));
 
         // then:
         verify(mockResponse).close();
@@ -224,7 +224,7 @@ public class HttpWritableResourceTest extends WritableSpecTest<ClientRequest, Cl
 
         // when:
         whenResourceWriteThenReturn(mockResponse);
-        subscribeWithOnCompletedAndOnErrorFailures(resource.write(newState));
+        subscribeWithOnCompletedAndOnErrorFailures(resource.set(newState));
 
         // then:
         verify(mockResponse).close();

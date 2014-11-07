@@ -16,8 +16,8 @@ package crud.http.example;
 
 import java.util.UUID;
 
-import crud.rsrc.Readable;
-import crud.rsrc.Writable;
+import crud.rsrc.Gettable;
+import crud.rsrc.Settable;
 import rx.Observer;
 
 
@@ -34,14 +34,14 @@ class AssetApplication {
     }
 
     public void processAsset(final UUID assetId) {
-        final Readable<Asset> reader = this.assetProvider.reader(assetId);
-        final Writable<Asset, Boolean> writer = this.assetProvider.writer(assetId);
+        final Gettable<Asset> reader = this.assetProvider.getter(assetId);
+        final Settable<Asset, Boolean> writer = this.assetProvider.setter(assetId);
         reader.get().subscribe(new Observer<Asset>() {
             @Override
             public void onNext(final Asset asset) {
                 System.out.println("Got the asset " + assetId);
                 final Asset betterAsset = new Asset(assetId, 42L);
-                writer.write(betterAsset).subscribe();
+                writer.set(betterAsset).subscribe();
             }
 
             @Override

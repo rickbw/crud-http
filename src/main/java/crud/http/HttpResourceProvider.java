@@ -22,14 +22,14 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
 import crud.rsrc.Deletable;
-import crud.rsrc.Readable;
+import crud.rsrc.Gettable;
 import crud.rsrc.Updatable;
-import crud.rsrc.Writable;
+import crud.rsrc.Settable;
 import crud.spi.DeletableProviderSpec;
-import crud.spi.ReadableProviderSpec;
+import crud.spi.GettableProviderSpec;
 import crud.spi.ResourceProviderSpec;
 import crud.spi.UpdatableProviderSpec;
-import crud.spi.WritableProviderSpec;
+import crud.spi.SettableProviderSpec;
 
 
 /**
@@ -38,9 +38,9 @@ import crud.spi.WritableProviderSpec;
  * all four CRUD actions: reading, writing, updating, and deleting.
  */
 public final class HttpResourceProvider
-implements ReadableProviderSpec<URI, ClientResponse>,
+implements GettableProviderSpec<URI, ClientResponse>,
            DeletableProviderSpec<URI, ClientResponse>,
-           WritableProviderSpec<URI, ClientRequest, ClientResponse>,
+           SettableProviderSpec<URI, ClientRequest, ClientResponse>,
            UpdatableProviderSpec<URI, ClientRequest, ClientResponse> {
 
     private final Client restClient;
@@ -75,8 +75,8 @@ implements ReadableProviderSpec<URI, ClientResponse>,
     }
 
     @Override
-    public Readable<ClientResponse> reader(final URI key) {
-        return Readable.from(create(key));
+    public Gettable<ClientResponse> getter(final URI key) {
+        return Gettable.from(create(key));
     }
 
     @Override
@@ -85,8 +85,8 @@ implements ReadableProviderSpec<URI, ClientResponse>,
     }
 
     @Override
-    public Writable<ClientRequest, ClientResponse> writer(final URI key) {
-        return Writable.from(create(key));
+    public Settable<ClientRequest, ClientResponse> setter(final URI key) {
+        return Settable.from(create(key));
     }
 
     @Override

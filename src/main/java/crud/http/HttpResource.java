@@ -21,10 +21,10 @@ import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.ClientResponse;
 
 import crud.spi.DeletableSpec;
-import crud.spi.ReadableSpec;
+import crud.spi.GettableSpec;
 import crud.spi.Resource;
 import crud.spi.UpdatableSpec;
-import crud.spi.WritableSpec;
+import crud.spi.SettableSpec;
 import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.Subscriptions;
@@ -35,9 +35,9 @@ import rx.subscriptions.Subscriptions;
  * reading, writing, updating, and deleting.
  */
 public class HttpResource
-implements ReadableSpec<ClientResponse>,
+implements GettableSpec<ClientResponse>,
            DeletableSpec<ClientResponse>,
-           WritableSpec<ClientRequest, ClientResponse>,
+           SettableSpec<ClientRequest, ClientResponse>,
            UpdatableSpec<ClientRequest, ClientResponse> {
 
     private final AsyncWebResource resource;
@@ -71,7 +71,7 @@ implements ReadableSpec<ClientResponse>,
      *          {@link ClientRequest#empty()}.
      */
     @Override
-    public Observable<ClientResponse> write(final ClientRequest resourceState) {
+    public Observable<ClientResponse> set(final ClientRequest resourceState) {
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
             @Override
             public void call(final Subscriber<? super ClientResponse> subscriber) {

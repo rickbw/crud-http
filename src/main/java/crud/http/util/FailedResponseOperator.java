@@ -23,8 +23,8 @@ import com.google.common.collect.Range;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
-import crud.rsrc.Readable;
-import crud.rsrc.ReadableProvider;
+import crud.rsrc.Gettable;
+import crud.rsrc.GettableProvider;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -46,10 +46,10 @@ import rx.Subscriber;
  * TODO: Build this into {@link crud.http.HttpResource} in a better way.
  *
  * @see UniformInterfaceException#getResponse()
- * @see Readable#lift(rx.Observable.Operator)
- * @see ReadableProvider#lift(rx.Observable.Operator)
- * @see Readable#retry(int)
- * @see ReadableProvider#retry(int)
+ * @see Gettable#lift(rx.Observable.Operator)
+ * @see GettableProvider#lift(rx.Observable.Operator)
+ * @see Gettable#retry(int)
+ * @see GettableProvider#retry(int)
  */
 public final class FailedResponseOperator
 implements Observable.Operator<ClientResponse, ClientResponse> {

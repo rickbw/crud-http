@@ -23,8 +23,8 @@ import javax.ws.rs.core.Response;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import crud.rsrc.ReadableProvider;
-import crud.rsrc.WritableProvider;
+import crud.rsrc.GettableProvider;
+import crud.rsrc.SettableProvider;
 import crud.spi.ResourceProviderSpec;
 import crud.http.ClientRequest;
 import crud.http.HttpResourceProvider;
@@ -125,9 +125,9 @@ class ExampleApplicationContext {
      */
     public final AssetResourceProvider assetProvider = AssetResourceProvider.create(
             // Retry all server errors on GET up to 3 times:
-            ReadableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
+            GettableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
             // Retry all server errors on PUT up to 3 times:
-            WritableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
+            SettableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
             urlBuilder,
             assetDecoder,
             assetEncoder,
