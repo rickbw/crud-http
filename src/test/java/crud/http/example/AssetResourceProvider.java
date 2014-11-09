@@ -73,8 +73,18 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
         final SettableProvider<UUID, Asset, Boolean> writer
                 = SettableProvider.from(writeDelegate)
                     .adaptKey(keyAdapter)
-                    .adaptNewValue(assetWriteMapper)
-                    .mapResponse(responseMapper);
+                    .adaptNewValue(new Func1<Observable<Asset>, Observable<WV>>() {
+                        @Override
+                        public Observable<WV> call(final Observable<Asset> asset) {
+                            return asset.map(assetWriteMapper);
+                        }
+                    })
+                    .mapResponse(new Func1<Observable<R>, Observable<Boolean>>() {
+                        @Override
+                        public Observable<Boolean> call(final Observable<R> t1) {
+                            return t1.map(responseMapper);
+                        }
+                    });
         return new AssetResourceProvider(reader, writer);
     }
 
@@ -124,7 +134,7 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
         }
 
         @Override
-        public Observable<Boolean> set(final Observable<? extends Asset> newValue) {
+        public Observable<Boolean> set(final Observable<Asset> newValue) {
             return this.writeRsrc.set(newValue);
         }
 

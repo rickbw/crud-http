@@ -135,7 +135,7 @@ class ExampleApplicationContext {
             // Retry all server errors on GET up to 3 times:
             GettableProvider.from(restResource).mapValue(retryServerErrors),
             // Retry all server errors on PUT up to 3 times:
-            SettableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
+            SettableProvider.from(restResource).mapResponse(retryServerErrors),
             urlBuilder,
             assetDecoder,
             assetEncoder,
