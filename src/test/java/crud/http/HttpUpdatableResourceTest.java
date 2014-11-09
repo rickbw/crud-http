@@ -41,6 +41,7 @@ import com.sun.jersey.api.client.async.ITypeListener;
 import com.sun.jersey.core.header.InBoundHeaders;
 
 import crud.spi.UpdatableSpecTest;
+import rx.Observable;
 import rx.Observer;
 
 
@@ -68,7 +69,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
     public void subscribeCallsMocks() {
         // given:
         final HttpResource resource = createDefaultResource();
-        final ClientRequest update = createDefaultUpdate();
+        final Observable<ClientRequest> update = createDefaultUpdate();
 
         // when:
         final ClientResponse response = resource.update(update).toBlocking().single();
@@ -81,8 +82,8 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
     @Test
     public void clientRequestsCopied() {
         // given:
-        final ClientRequest mockRequestTemplate = createDefaultUpdate();
-        final ClientRequest mockRequest = createDefaultUpdate();
+        final ClientRequest mockRequestTemplate = createDefaultUpdate().toBlocking().single();
+        final Observable<ClientRequest> mockRequest = createDefaultUpdate();
         final HttpResource resource = new HttpResource(this.mockResource, mockRequestTemplate);
 
         // when:
@@ -90,7 +91,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
 
         // then:
         verify(mockRequestTemplate).updateResource(this.mockResourceBuilder);
-        verify(mockRequest).updateResource(this.mockResourceBuilder);
+        verify(mockRequest.toBlocking().single()).updateResource(this.mockResourceBuilder);
     }
 
     @Test
@@ -99,7 +100,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock failure");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest update = createDefaultUpdate();
+        final Observable<ClientRequest> update = createDefaultUpdate();
 
         final AtomicBoolean failed = new AtomicBoolean();
 
@@ -134,7 +135,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
         // given:
         final RuntimeException expectedException = new IllegalStateException("mock exception");
         final HttpResource resource = createDefaultResource();
-        final ClientRequest update = createDefaultUpdate();
+        final Observable<ClientRequest> update = createDefaultUpdate();
 
         final String success = "success";
         final AtomicReference<String> successOrFail = new AtomicReference<>("never called");
@@ -174,7 +175,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
+        final Observable<ClientRequest> update = createDefaultUpdate();
 
         // when:
         whenResourceUpdateThenReturn(mockResponse);
@@ -189,7 +190,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
+        final Observable<ClientRequest> update = createDefaultUpdate();
 
         // when:
         whenResourceUpdateThenReturn(mockResponse);
@@ -204,7 +205,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
+        final Observable<ClientRequest> update = createDefaultUpdate();
 
         // when:
         whenResourceUpdateThenReturn(mockResponse);
@@ -219,7 +220,7 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
         // given:
         final HttpResource resource = createDefaultResource();
         final ClientResponse mockResponse = mock(ClientResponse.class);
-        final ClientRequest update = createDefaultUpdate();
+        final Observable<ClientRequest> update = createDefaultUpdate();
 
         // when:
         whenResourceUpdateThenReturn(mockResponse);
@@ -235,8 +236,8 @@ public class HttpUpdatableResourceTest extends UpdatableSpecTest<ClientRequest, 
     }
 
     @Override
-    protected ClientRequest createDefaultUpdate() {
-        return mock(ClientRequest.class);
+    protected Observable<ClientRequest> createDefaultUpdate() {
+        return Observable.just(mock(ClientRequest.class));
     }
 
     private static ClientResponse createResponse() {

@@ -82,6 +82,7 @@ implements GettableSpec<ClientResponse>,
                     @Override
                     public void onNext(final ClientRequest next) {
                         if (!subscriber.isUnsubscribed()) {
+                            // FIXME: Fix correlation between request and response
                             final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
                             HttpResource.this.requestTemplate.updateResource(request);
                             next.updateResource(request);
@@ -122,16 +123,39 @@ implements GettableSpec<ClientResponse>,
      *          {@link ClientRequest#empty()}.
      */
     @Override
-    public Observable<ClientResponse> update(final ClientRequest update) {
+    public Observable<ClientResponse> update(final Observable<? extends ClientRequest> update) {
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
             @Override
             public void call(final Subscriber<? super ClientResponse> subscriber) {
-                final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
-                HttpResource.this.requestTemplate.updateResource(request);
-                update.updateResource(request);
-                // Don't pass resourceState to post(): already in request
-                final Future<ClientResponse> response = request.post(ResponseListener.adapt(subscriber));
-                subscriber.add(Subscriptions.from(response));
+                final ResponseListener listener = ResponseListener.adapt(subscriber);
+                update.subscribe(new Observer<ClientRequest>() {
+                    @Override
+                    public void onNext(final ClientRequest next) {
+                        if (!subscriber.isUnsubscribed()) {
+                            // FIXME: Fix correlation between request and response
+                            final AsyncWebResource.Builder request = HttpResource.this.resource.getRequestBuilder();
+                            HttpResource.this.requestTemplate.updateResource(request);
+                            next.updateResource(request);
+                            // Don't pass resourceState to put(): already in request
+                            final Future<ClientResponse> response = request.post(listener);
+                            subscriber.add(Subscriptions.from(response));
+                        }
+                    }
+
+                    @Override
+                    public void onError(final Throwable e) {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onError(e);
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onCompleted();
+                        }
+                    }
+                });
             }
         };
         final Observable<ClientResponse> obs = Observable.create(subscribeAction)
