@@ -123,7 +123,7 @@ implements GettableSpec<ClientResponse>,
      *          {@link ClientRequest#empty()}.
      */
     @Override
-    public Observable<ClientResponse> update(final Observable<? extends ClientRequest> update) {
+    public Observable<ClientResponse> update(final Observable<ClientRequest> update) {
         final Observable.OnSubscribe<ClientResponse> subscribeAction = new Observable.OnSubscribe<ClientResponse>() {
             @Override
             public void call(final Subscriber<? super ClientResponse> subscriber) {
