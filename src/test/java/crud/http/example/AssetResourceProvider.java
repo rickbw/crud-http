@@ -64,7 +64,12 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
         final GettableProvider<UUID, Asset> reader
                 = GettableProvider.from(readDelegate)
                     .adaptKey(keyAdapter)
-                    .mapValue(assetReadMapper);
+                    .mapValue(new Func1<Observable<RV>, Observable<Asset>>() {
+                        @Override
+                        public Observable<Asset> call(final Observable<RV> value) {
+                            return value.map(assetReadMapper);
+                        }
+                    });
         final SettableProvider<UUID, Asset, Boolean> writer
                 = SettableProvider.from(writeDelegate)
                     .adaptKey(keyAdapter)

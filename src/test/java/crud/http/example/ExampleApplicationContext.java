@@ -23,12 +23,13 @@ import javax.ws.rs.core.Response;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import crud.rsrc.GettableProvider;
-import crud.rsrc.SettableProvider;
-import crud.spi.ResourceProviderSpec;
 import crud.http.ClientRequest;
 import crud.http.HttpResourceProvider;
 import crud.http.util.FailedResponseOperator;
+import crud.rsrc.GettableProvider;
+import crud.rsrc.SettableProvider;
+import crud.spi.ResourceProviderSpec;
+import rx.Observable;
 import rx.functions.Func1;
 
 
@@ -114,6 +115,13 @@ class ExampleApplicationContext {
         }
     };
 
+    private final Func1<Observable<ClientResponse>, Observable<ClientResponse>> retryServerErrors = new Func1<Observable<ClientResponse>, Observable<ClientResponse>>() {
+        @Override
+        public Observable<ClientResponse> call(final Observable<ClientResponse> t1) {
+            return t1.lift(FailedResponseOperator.serverErrors()).retry(3);
+        }
+    };
+
     /**
      * Assemble the {@link ResourceProviderSpec} for {@link Asset}s by indicating:
      * <ol>
@@ -125,7 +133,7 @@ class ExampleApplicationContext {
      */
     public final AssetResourceProvider assetProvider = AssetResourceProvider.create(
             // Retry all server errors on GET up to 3 times:
-            GettableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
+            GettableProvider.from(restResource).mapValue(retryServerErrors),
             // Retry all server errors on PUT up to 3 times:
             SettableProvider.from(restResource).lift(FailedResponseOperator.serverErrors()).retry(3),
             urlBuilder,
