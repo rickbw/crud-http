@@ -27,10 +27,10 @@ import rx.Observer;
  */
 class AssetApplication {
 
-    private final AssetResourceProvider assetProvider;
+    private final AssetSet assetProvider;
 
 
-    public AssetApplication(final AssetResourceProvider isThisAWebServiceIDontCare) {
+    public AssetApplication(final AssetSet isThisAWebServiceIDontCare) {
         this.assetProvider = isThisAWebServiceIDontCare;
     }
 

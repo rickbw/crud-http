@@ -24,7 +24,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
 import crud.rsrc.Gettable;
-import crud.rsrc.GettableProvider;
+import crud.rsrc.GettableSet;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -47,9 +47,9 @@ import rx.Subscriber;
  *
  * @see UniformInterfaceException#getResponse()
  * @see Gettable#lift(rx.Observable.Operator)
- * @see GettableProvider#lift(rx.Observable.Operator)
+ * @see GettableSet#lift(rx.Observable.Operator)
  * @see Gettable#retry(int)
- * @see GettableProvider#retry(int)
+ * @see GettableSet#retry(int)
  */
 public final class FailedResponseOperator
 implements Observable.Operator<ClientResponse, ClientResponse> {

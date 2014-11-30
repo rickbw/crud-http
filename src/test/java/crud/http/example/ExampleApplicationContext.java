@@ -26,9 +26,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import crud.http.ClientRequest;
 import crud.http.HttpResourceProvider;
 import crud.http.util.FailedResponseOperator;
-import crud.rsrc.GettableProvider;
-import crud.rsrc.SettableProvider;
-import crud.spi.ResourceProviderSpec;
+import crud.rsrc.GettableSet;
+import crud.rsrc.SettableSet;
+import crud.spi.ResourceSet;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -123,7 +123,7 @@ class ExampleApplicationContext {
     };
 
     /**
-     * Assemble the {@link ResourceProviderSpec} for {@link Asset}s by indicating:
+     * Assemble the {@link ResourceSet} for {@link Asset}s by indicating:
      * <ol>
      *  <li>how to read them (i.e. from a web service),</li>
      *  <li>how to write them (i.e. to a web service),</li>
@@ -131,11 +131,11 @@ class ExampleApplicationContext {
      *      providers and our application-specific language of "assets".</li>
      * </ol>
      */
-    public final AssetResourceProvider assetProvider = AssetResourceProvider.create(
+    public final AssetSet assetProvider = AssetSet.create(
             // Retry all server errors on GET up to 3 times:
-            GettableProvider.from(restResource).mapValue(retryServerErrors),
+            GettableSet.from(restResource).mapValue(retryServerErrors),
             // Retry all server errors on PUT up to 3 times:
-            SettableProvider.from(restResource).mapResponse(retryServerErrors),
+            SettableSet.from(restResource).mapResponse(retryServerErrors),
             urlBuilder,
             assetDecoder,
             assetEncoder,

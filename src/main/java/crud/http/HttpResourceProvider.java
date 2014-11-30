@@ -25,30 +25,30 @@ import crud.rsrc.Deletable;
 import crud.rsrc.Gettable;
 import crud.rsrc.Updatable;
 import crud.rsrc.Settable;
-import crud.spi.DeletableProviderSpec;
-import crud.spi.GettableProviderSpec;
-import crud.spi.ResourceProviderSpec;
-import crud.spi.UpdatableProviderSpec;
-import crud.spi.SettableProviderSpec;
+import crud.spi.DeletableSetSpec;
+import crud.spi.GettableSetSpec;
+import crud.spi.ResourceSet;
+import crud.spi.UpdatableSetSpec;
+import crud.spi.SettableSetSpec;
 
 
 /**
- * A {@link ResourceProviderSpec} based on Jersey that provides
+ * A {@link ResourceSet} based on Jersey that provides
  * {@link HttpResource}s at given {@link URI}s. These resources are capable of
  * all four CRUD actions: reading, writing, updating, and deleting.
  */
 public final class HttpResourceProvider
-implements GettableProviderSpec<URI, ClientResponse>,
-           DeletableProviderSpec<URI, ClientResponse>,
-           SettableProviderSpec<URI, ClientRequest, ClientResponse>,
-           UpdatableProviderSpec<URI, ClientRequest, ClientResponse> {
+implements GettableSetSpec<URI, ClientResponse>,
+           DeletableSetSpec<URI, ClientResponse>,
+           SettableSetSpec<URI, ClientRequest, ClientResponse>,
+           UpdatableSetSpec<URI, ClientRequest, ClientResponse> {
 
     private final Client restClient;
     private final ClientRequest requestTemplate;
 
 
     /**
-     * Create a new {@link ResourceProviderSpec} backed by the given
+     * Create a new {@link ResourceSet} backed by the given
      * {@link Client}.
      */
     public static HttpResourceProvider forClient(final Client restClient) {
@@ -56,7 +56,7 @@ implements GettableProviderSpec<URI, ClientResponse>,
     }
 
     /**
-     * Create a new {@link ResourceProviderSpec} backed by the given
+     * Create a new {@link ResourceSet} backed by the given
      * {@link Client}. Each request will include all of the elements of the
      * given request. For example, if all communication should use JSON, you
      * might pass the result of the following:

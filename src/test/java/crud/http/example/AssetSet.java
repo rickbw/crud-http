@@ -17,33 +17,33 @@ package crud.http.example;
 import java.util.UUID;
 
 import crud.rsrc.Gettable;
-import crud.rsrc.GettableProvider;
+import crud.rsrc.GettableSet;
 import crud.rsrc.Settable;
-import crud.rsrc.SettableProvider;
-import crud.spi.GettableProviderSpec;
+import crud.rsrc.SettableSet;
+import crud.spi.GettableSetSpec;
 import crud.spi.GettableSpec;
 import crud.spi.Resource;
-import crud.spi.ResourceProviderSpec;
-import crud.spi.SettableProviderSpec;
+import crud.spi.ResourceSet;
+import crud.spi.SettableSetSpec;
 import crud.spi.SettableSpec;
 import rx.Observable;
 import rx.functions.Func1;
 
 
 /**
- * A {@link ResourceProviderSpec} for retrieving readable and writable
+ * A {@link ResourceSet} for retrieving readable and writable
  * {@link Asset}s, encapsulated by {@link AssetResource}.
  */
-class AssetResourceProvider
-implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, Boolean> {
+class AssetSet
+implements GettableSetSpec<UUID, Asset>, SettableSetSpec<UUID, Asset, Boolean> {
 
-    private final GettableProviderSpec<UUID, Asset> readDelegate;
-    private final SettableProviderSpec<UUID, Asset, Boolean> writeDelegate;
+    private final GettableSetSpec<UUID, Asset> readDelegate;
+    private final SettableSetSpec<UUID, Asset, Boolean> writeDelegate;
 
 
     /**
-     * Wrap a pair of {@link ResourceProviderSpec}s with a new
-     * AssetResourceProvider. These input providers might be, for example, a
+     * Wrap a pair of {@link ResourceSet}s with a new
+     * AssetSet. These input providers might be, for example, a
      * {@link crud.http.HttpResourceProvider}, if the Assets are to
      * be backed by a web service. However, any backing providers will do,
      * provided there is some way to transform their inputs and outputs
@@ -54,15 +54,15 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
      * @param <WV>  The type of the values written by the write delegate.
      * @param <R>   The type of the response from the write delegate.
      */
-    public static <K, RV, WV, R> AssetResourceProvider create(
-            final GettableProviderSpec<K, RV> readDelegate,
-            final SettableProviderSpec<K, WV, R> writeDelegate,
+    public static <K, RV, WV, R> AssetSet create(
+            final GettableSetSpec<K, RV> readDelegate,
+            final SettableSetSpec<K, WV, R> writeDelegate,
             final Func1<? super UUID, ? extends K> keyAdapter,
             final Func1<? super RV, ? extends Asset> assetReadMapper,
             final Func1<? super Asset, ? extends WV> assetWriteMapper,
             final Func1<? super R, ? extends Boolean> responseMapper) {
-        final GettableProvider<UUID, Asset> reader
-                = GettableProvider.from(readDelegate)
+        final GettableSet<UUID, Asset> reader
+                = GettableSet.from(readDelegate)
                     .adaptKey(keyAdapter)
                     .mapValue(new Func1<Observable<RV>, Observable<Asset>>() {
                         @Override
@@ -70,8 +70,8 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
                             return value.map(assetReadMapper);
                         }
                     });
-        final SettableProvider<UUID, Asset, Boolean> writer
-                = SettableProvider.from(writeDelegate)
+        final SettableSet<UUID, Asset, Boolean> writer
+                = SettableSet.from(writeDelegate)
                     .adaptKey(keyAdapter)
                     .adaptNewValue(new Func1<Observable<Asset>, Observable<WV>>() {
                         @Override
@@ -85,7 +85,7 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
                             return t1.map(responseMapper);
                         }
                     });
-        return new AssetResourceProvider(reader, writer);
+        return new AssetSet(reader, writer);
     }
 
     @Override
@@ -109,9 +109,9 @@ implements GettableProviderSpec<UUID, Asset>, SettableProviderSpec<UUID, Asset, 
         return new AssetResourceImpl(writeRsrc, readRsrc);
     }
 
-    private AssetResourceProvider(
-            final GettableProviderSpec<UUID, Asset> readDelegate,
-            final SettableProviderSpec<UUID, Asset, Boolean> writeDelegate) {
+    private AssetSet(
+            final GettableSetSpec<UUID, Asset> readDelegate,
+            final SettableSetSpec<UUID, Asset, Boolean> writeDelegate) {
         this.readDelegate = readDelegate;
         this.writeDelegate = writeDelegate;
     }
